@@ -1,9 +1,11 @@
 import Banner from "@/components/Banner";
 
-export default function Home() {
+const Home = () => {
   return (
-    <div className="bg-slate-900 h-screen w-screen">
+    <div className="bg-slate-900 h-full w-screen">
       <Banner />
     </div>
   );
-}
+};
+
+export default Home;
