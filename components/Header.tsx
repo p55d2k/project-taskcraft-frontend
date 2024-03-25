@@ -49,7 +49,7 @@ const Header = () => {
               <UserButton />
             </SignedIn>
             <SignedOut>
-              <SignInButton redirectUrl="/" mode="modal">
+              <SignInButton redirectUrl="/dashboard" mode="modal">
                 <Button variant={"ghost"}>Login</Button>
               </SignInButton>
             </SignedOut>

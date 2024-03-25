@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Open_Sans } from "next/font/google";
+import Header from "@/components/Header";
+import type { Metadata } from "next";
 import "./globals.css";
 
 const open_sans = Open_Sans({ subsets: ["latin"] });
@@ -20,7 +21,11 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={open_sans.className}>{children}</body>
+        <body className={open_sans.className}>
+          <Header />
+          <div className="h-24 -z-10" />
+          {children}
+        </body>
       </html>
     </ClerkProvider>
   );

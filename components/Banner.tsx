@@ -1,21 +1,8 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useUser, SignUpButton } from "@clerk/nextjs";
+import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Button } from "./ui/button";
-import { useEffect } from "react";
 import Image from "next/image";
 
 const Banner = () => {
-  const router = useRouter();
-  const { user } = useUser();
-
-  useEffect(() => {
-    if (user) {
-      router.push("/dashboard");
-    }
-  }, [user, router]);
-
   return (
     <div className="bg-slate-900 min-h-screen w-full mt-[-50px] flex flex-col lg:flex-row align-middle justify-center items-center lg:space-x-16">
       <div className="flex flex-col align-middle justify-center space-y-16">
@@ -37,13 +24,22 @@ const Banner = () => {
         <p className="text-2xl font-light text-white text-center lg:text-left">
           An efficient task management tool. <br />
           A better way to communicate. <br />
-          Sign up. It&apos;s free. <br />
+          <SignedOut>
+            Sign up. It&apos;s free. <br />
+          </SignedOut>
         </p>
-        <SignUpButton mode="modal" redirectUrl="/dashboard">
+        <SignedIn>
           <Button variant={"destructive"} className="w-1/2 mt-4">
-            Sign Up
+            Go to Dashboard
           </Button>
-        </SignUpButton>
+        </SignedIn>
+        <SignedOut>
+          <SignUpButton mode="modal" redirectUrl="/dashboard">
+            <Button variant={"destructive"} className="w-1/2 mt-4">
+              Sign Up
+            </Button>
+          </SignUpButton>
+        </SignedOut>
       </div>
     </div>
   );
