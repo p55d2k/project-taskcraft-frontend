@@ -2,15 +2,15 @@ import Image from "next/image";
 
 const About = () => {
   return (
-    <div className="bg-slate-900 h-full w-screen text-white p-8">
-      <h1 className="text-5xl flex-row h-20 font-thin hidden md:flex">
+    <div className="bg-slate-900 h-full w-screen text-white p-8 flex flex-col space-y-4">
+      <h1 className="text-5xl flex-row font-thin hidden md:flex">
         What is{" "}
         <span className="ml-2 mr-1 font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 block text-opacity-0 text-white bg-clip-text">
           Project TaskCraft
         </span>
         ?
       </h1>
-      <h1 className="text-4xl flex-row h-32 sm:h-16 font-bold flex md:hidden">
+      <h1 className="text-4xl flex-row sm:h-16 font-bold flex md:hidden">
         What is Project TaskCraft?
       </h1>
       <span className="text-lg md:text-xl">
@@ -19,7 +19,7 @@ const About = () => {
         It is a better way to communicate and collaborate with your team. Sign
         up now and start managing your projects for free.
       </span>
-      <main className="flex flex-col space-y-14 mt-16">
+      <main className="flex flex-col space-y-14">
         <div className="flex flex-col border-b border-1 border-[gray] space-y-6 pb-5">
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">
             Features
@@ -46,7 +46,7 @@ const About = () => {
               </span>
             </div>
             <Image
-              src="https://help.nflxext.com/396a2a39-8d34-4260-b07a-6391fe04ded5_what_is_netflix_2_en.png"
+              src="/imgs/logos/logo_white.png" // TODO: add real images of inside
               alt="zkflix-next"
               width={1000}
               height={600}
@@ -82,7 +82,7 @@ const About = () => {
               </span>
             </div>
             <Image
-              src="https://help.nflxext.com/7ac9b493-ae69-431a-923d-3cb8a79d7e63_what_is_netflix_3_en.png"
+              src="/imgs/logos/logo_black.png" // TODO: add real images of inside
               alt="zkflix-next"
               width={1000}
               height={600}

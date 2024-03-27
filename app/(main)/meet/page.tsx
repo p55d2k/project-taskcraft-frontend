@@ -1,9 +1,3 @@
-"use client";
-
-import { JitsiMeeting } from "@jitsi/react-sdk";
-import { useEffect } from "react";
-import { useRef } from "react";
-
 const MeetPage = () => {
   return (
     <div className="bg-slate-900 h-screen w-screen text-white p-8">
