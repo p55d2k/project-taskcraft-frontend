@@ -17,7 +17,7 @@ const Banner = () => {
           AI integration. Get started today!
         </p>
       </div>
-      <div className="w-full min-h-screen lg:h-auto -z-10 flex items-end justify-center">
+      <div className="w-full lg:w-[85%] min-h-screen lg:h-auto -z-10 flex items-end justify-center">
         <Image
           src="imgs/catgirl.png"
           alt=""
