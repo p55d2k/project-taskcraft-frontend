@@ -1,59 +1,66 @@
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-  ClerkLoaded,
-  ClerkLoading,
-} from "@clerk/nextjs";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { Button } from "./ui/button";
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const Header = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const pathname = usePathname();
+  if (pathname === "/auth") {
+    return null;
+  }
+
   return (
-    <div className="bg-black h-24 w-screen fixed">
-      <div className="flex justify-center md:justify-between items-center h-full mx-4">
-        <SignedIn>
-          <Link className="flex items-center" href="/dashboard">
-            <Image
-              alt="logo"
-              src="/imgs/logos/logo_transparent.png"
-              width={96}
-              height={96}
-              unoptimized
-            />
-          </Link>
-        </SignedIn>
-        <SignedOut>
-          <Link className="flex items-center" href="/">
-            <Image
-              alt="logo"
-              src="/imgs/logos/logo_transparent.png"
-              width={96}
-              height={96}
-              unoptimized
-            />
-          </Link>
-        </SignedOut>
-        <div className="hidden md:flex items-center space-x-2 text-white">
-          <Button variant={"ghost"}><Link href="/about">About</Link></Button>
-          <Button variant={"ghost"}><Link href="/feedback">Feedback</Link></Button>
-          <ClerkLoading>
-            <AiOutlineLoading3Quarters className="animate-spin" />
-          </ClerkLoading>
-          <ClerkLoaded>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton redirectUrl="/dashboard" mode="modal">
-                <Button variant={"ghost"}>Login</Button>
-              </SignInButton>
-            </SignedOut>
-          </ClerkLoaded>
+    <div
+      className={`${
+        isScrolled ? "bg-black" : "bg-transparent"
+      } fixed w-screen border-slate-900 border-b-2 px-2 md:px-4 lg:px-8`}
+    >
+      <div className="flex flex-row justify-between">
+        <div className="flex flex-row space-x-3 md:space-x-7">
+          <Image
+            unoptimized
+            src={"logo-nobg.png"}
+            width={75}
+            height={75}
+            alt=""
+          />
+          <div className="hidden md:flex flex-row items-center justify-center space-x-2 md:space-x-4">
+            <a
+              href="/"
+              className={`header-link ${
+                pathname === "/" && "header-current-page"
+              }`}
+            >
+              Home
+            </a>
+            {/* <a href="/feedback" target="_blank">Feedback</a> */}
+          </div>
+        </div>
+        <div className="hidden md:flex flex-row items-center justify-center space-x-2 md:space-x-4">
+          <a href="/auth?type=login" className="header-link">
+            Login
+          </a>
+          <a
+            href="/auth?type=signup"
+            className="header-link border-gray-400 bg-slate-900 hover:border-white border-2 hover:bg-transparent rounded px-3 py-1"
+          >
+            Sign Up
+          </a>
         </div>
       </div>
     </div>
