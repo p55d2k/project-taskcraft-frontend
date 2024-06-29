@@ -10,14 +10,14 @@ const Banner = () => {
         <h1
           className={`${kanit.className} text-center lg:text-left text-4xl md:text-5xl lg:text-6xl  uppercase`}
         >
-          TASKCRAFT: THE AI-INTEGRATED TOOL FOR PROJECT MANAGEMENT
+          TASKCRAFT: THE AI-INTEGRATED TOOL FOR Simple PROJECT MANAGEMENT
         </h1>
-        <p className="text-xl md:text-2xl xl:text-4xl text-center lg:text-left">
+        <p className="text-xl md:text-2xl xl:text-3xl text-center lg:text-left">
           TaskCraft is the simplest and easiest way to manage your projects with
           AI integration. Get started today!
         </p>
       </div>
-      <div className="w-full lg:w-[85%] min-h-screen lg:h-auto -z-10 flex items-end justify-center">
+      <div className="w-full lg:w-[85%] min-h-[60vh] sm:min-h-screen lg:h-auto -z-10 flex items-end justify-center">
         <Image
           src="imgs/catgirl.png"
           alt=""
