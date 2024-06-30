@@ -17,14 +17,24 @@ import { UserData } from "@/typings";
 
 interface IDataContext {
   userData: UserData | null;
-  setUserData: (data: any) => void;
+  projectData: any | null;
+  projectId: string;
+  setProjectId: (id: string) => void;
+  setUserData: (data: UserData) => void;
   deleteUserData: () => void;
+  setProjectData: (data: any) => void;
+  deleteProjectData: () => void;
 }
 
 const DataContext = createContext<IDataContext>({
   userData: null,
+  projectData: null,
+  projectId: "",
+  setProjectId: () => {},
   setUserData: () => {},
   deleteUserData: () => {},
+  setProjectData: () => {},
+  deleteProjectData: () => {},
 });
 
 interface DataProviderProps {
@@ -32,9 +42,14 @@ interface DataProviderProps {
 }
 
 export const DataProvider = ({ children }: DataProviderProps) => {
-  const [userData, setUserDataLocally] = useState<any>(null);
   const [userId, setUserId] = useState<string>("");
+  const [projectId, setProjectId] = useState<string>("");
+
+  const [userData, setUserDataLocally] = useState<UserData | null>(null);
+  const [projectData, setProjectDataLocally] = useState<any | null>(null);
+
   const [docRef, setDocRef] = useState<any>(null);
+  const [projectDocRef, setProjectDocRef] = useState<any>(null);
 
   const { user } = useAuth();
 
@@ -52,7 +67,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
       setUserDataLocally(data);
     });
 
-    // Cleanup function to unsubscribe
+    // cleanup function to unsubscribe
     return () => unsubscribe();
   }, [user]);
 
@@ -67,7 +82,34 @@ export const DataProvider = ({ children }: DataProviderProps) => {
     }
   }, [userData]);
 
-  const setUserData = (data: any) => {
+  useEffect(() => {
+    if (!projectId || !userId) return;
+
+    const currentProjectDocRef = ref(db, `projects/${projectId}`);
+
+    setProjectDocRef(currentProjectDocRef);
+
+    const unsubscribe = onValue(currentProjectDocRef, (snapshot) => {
+      const data = snapshot.val();
+      setProjectDataLocally(data);
+    });
+
+    // cleanup function to unsubscribe
+    return () => unsubscribe();
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!projectId || !projectDocRef) return;
+
+    if (!projectData) {
+      remove(projectDocRef);
+      setProjectDocRef(null);
+    } else {
+      update(projectDocRef, projectData);
+    }
+  }, [projectData]);
+
+  const setUserData = (data: UserData) => {
     if (!userId) return;
     setUserDataLocally(data);
   };
@@ -77,12 +119,27 @@ export const DataProvider = ({ children }: DataProviderProps) => {
     setUserDataLocally(null);
   };
 
+  const setProjectData = (data: any) => {
+    if (!projectId) return;
+    setProjectDataLocally(data);
+  };
+
+  const deleteProjectData = () => {
+    if (!projectId) return;
+    setProjectDataLocally(null);
+  };
+
   return (
     <DataContext.Provider
       value={{
         userData,
+        projectData,
+        projectId,
+        setProjectId,
         setUserData,
         deleteUserData,
+        setProjectData,
+        deleteProjectData,
       }}
     >
       {children}

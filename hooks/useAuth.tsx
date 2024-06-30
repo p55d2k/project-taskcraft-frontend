@@ -77,16 +77,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // if (!user.emailVerified && router.pathname !== "/auth/verify-email")
         //   navigate("/auth/verify-email");
 
-        if (pathname === "/") {
-          navigate("/dashboard");
-        }
-
         setLoading(false);
       } else {
         setUser(null);
         setLoading(false);
 
-        if (pathname === "/") return;
+        if (pathname === "/") {
+          setInitialLoading(false);
+          return;
+        }
 
         let path_allowed = false;
         for (const path of unprotectedRoutes) {

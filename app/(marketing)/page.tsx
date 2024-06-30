@@ -1,11 +1,7 @@
 import Banner from "@/components/Banner";
 
 const Welcome = () => {
-  return (
-    <div>
-      <Banner />
-    </div>
-  );
+  return <Banner />;
 };
 
 export default Welcome;
