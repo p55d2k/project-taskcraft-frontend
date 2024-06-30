@@ -20,4 +20,9 @@
   .header-current-page {
     @apply border-b-2 border-gray-400 hover:border-white;
   }
+
+  .auth-input {
+    /* @apply focus:bg-[#454545] px-5 py-3.5 rounded w-full h-full bg-[#333] placeholder-[gray] outline-none; */
+    @apply focus:border-white focus:text-white text-[gray] px-1 pb-2.5 pt-4 w-full h-full bg-transparent border-b-2 transition-all ease-in-out duration-300 border-[gray] placeholder-[gray] outline-none;
+  }
 }

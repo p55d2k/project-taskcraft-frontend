@@ -13,6 +13,7 @@ import { ImSpinner2 } from "react-icons/im";
 
 interface Inputs {
   email: string;
+  uname: string;
   password: string;
   confirmPassword: string;
 }
@@ -36,6 +37,7 @@ const Auth = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async ({
     email,
+    uname,
     password,
     confirmPassword,
   }) => {
@@ -56,7 +58,7 @@ const Auth = () => {
         return;
       }
 
-      await signUp(email, password).catch((error: any) => {
+      await signUp(email, password, uname).catch((error: any) => {
         setError(error.message);
         setLoading(false);
       });
@@ -82,7 +84,7 @@ const Auth = () => {
         />
       </div>
 
-      <Link href="/" className="absolute hidden sm:flex left-6 top-2">
+      <Link href="/" className="absolute hidden sm:flex left-6 top-6">
         <Image
           unoptimized
           src={"logo-nobg.png"}
@@ -104,7 +106,7 @@ const Auth = () => {
             <input
               type="email"
               placeholder="Email"
-              className="focus:bg-[#454545] px-5 py-3.5 rounded w-full h-full bg-[#333] placeholder-[gray] outline-none"
+              className="auth-input"
               id="email_input"
               {...register("email", { required: true })}
             />
@@ -114,12 +116,30 @@ const Auth = () => {
               </p>
             )}
           </label>
+
+          {!login && (
+            <label className="inline-block w-full">
+              <input
+                type="text"
+                placeholder="Username"
+                className="auth-input"
+                id="uname_input"
+                {...register("uname", { required: true })}
+              />
+              {errors.uname && (
+                <p className="p-1 text-red-500 font-light text-[13px]">
+                  {errors.uname.message || "Please enter a valid username."}
+                </p>
+              )}
+            </label>
+          )}
+
           <label className="inline-block w-full">
-            <div className="flex flex-row items-center w-full rounded bg-[#333] placeholder-[gray] outline-none">
+            <div className="flex flex-row items-center w-full rounded outline-none">
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="focus:bg-[#454545] px-5 py-3.5 rounded w-full h-full bg-[#333] placeholder-[gray] outline-none"
+                className="auth-input"
                 {...register("password", { required: true })}
               />
               <p
@@ -136,13 +156,14 @@ const Auth = () => {
               </p>
             )}
           </label>
+
           {!login && (
             <label className="inline-block w-full">
-              <div className="flex flex-row items-center w-full rounded bg-[#333] placeholder-[gray] outline-none">
+              <div className="flex flex-row items-center w-full rounded outline-none">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm Password"
-                  className="focus:bg-[#454545] px-5 py-3.5 rounded w-full h-full bg-[#333] placeholder-[gray] outline-none"
+                  className="auth-input"
                   {...register("confirmPassword", { required: true })}
                 />
                 <p

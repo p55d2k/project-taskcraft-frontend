@@ -1,3 +1,4 @@
+import { DataProvider } from "@/hooks/useData";
 import { AuthProvider } from "@/hooks/useAuth";
 
 import { Roboto } from "next/font/google";
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <DataProvider>{children}</DataProvider>
+        </AuthProvider>
       </body>
     </html>
   );

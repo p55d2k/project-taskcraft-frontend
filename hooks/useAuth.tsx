@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect, useContext, createContext } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useContext,
+  createContext,
+  use,
+} from "react";
 import { usePathname } from "next/navigation";
 
 import { auth, db } from "@/firebase";
@@ -16,15 +23,13 @@ import {
   signOut,
   User,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { ref, set } from "firebase/database";
 
 import { navigate } from "@/utils/actions";
 
-const unprotectedRoutes = ["/auth", "/"];
-
 interface IAuth {
   user: User | null;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, uname: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   deleteAcc: () => Promise<void>;
@@ -54,6 +59,8 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+const unprotectedRoutes = ["/auth"];
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -70,10 +77,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // if (!user.emailVerified && router.pathname !== "/auth/verify-email")
         //   navigate("/auth/verify-email");
 
+        if (pathname === "/") {
+          navigate("/dashboard");
+        }
+
         setLoading(false);
       } else {
         setUser(null);
         setLoading(false);
+
+        if (pathname === "/") return;
 
         let path_allowed = false;
         for (const path of unprotectedRoutes) {
@@ -91,7 +104,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
   }, [auth]);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, uname: string) => {
     setLoading(true);
 
     await createUserWithEmailAndPassword(auth, email, password)
@@ -100,6 +113,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         if (user) {
           setUser(user);
+
+          // send request to backend to create user data
+          // await setDoc(doc(db, "userdata", email), {
+          //   plan: null,
+          //   profiles: [],
+          //   subscribed: false,
+          //   createdAt: Date.now(),
+          //   power: "member",
+          //   id: email,
+          //   ips: [],
+          // });
+
+          const reference = ref(db, "users/" + user.uid);
+          set(reference, {
+            email: user.email,
+            name: uname,
+            createdAt: Date.now(),
+            ips: [],
+          });
+
           // navigate("/auth/verify-email");
           navigate("/dashboard");
         }
@@ -107,17 +140,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       .catch((error) => {
         throw new Error(error.message);
       });
-
-    // send request to backend to create user data
-    // await setDoc(doc(db, "userdata", email), {
-    //   plan: null,
-    //   profiles: [],
-    //   subscribed: false,
-    //   createdAt: Date.now(),
-    //   power: "member",
-    //   id: email,
-    //   ips: [],
-    // });
 
     setLoading(false);
   };

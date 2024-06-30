@@ -6,9 +6,13 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import useAuth from "@/hooks/useAuth";
+import useData from "@/hooks/useData";
+
+import { navigate } from "@/utils/actions";
 
 const Header = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { userData } = useData();
 
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {
@@ -29,28 +33,33 @@ const Header = () => {
   return (
     <div
       className={`${
-        isScrolled ? "bg-black" : "bg-transparent"
-      } fixed w-screen px-2 md:px-4 lg:px-8`}
+        isScrolled ? "bg-[#141414]" : "bg-transparent"
+      } fixed w-full px-4 lg:px-8 py-5`}
     >
       <div className="flex flex-row justify-between">
         <div className="flex flex-row space-x-3 md:space-x-7">
-          <Image
-            unoptimized
-            src={"logo-nobg.png"}
-            width={75}
-            height={75}
-            alt=""
-          />
+          <div>
+            <Link href="/" className="flex md:hidden">
+              <Image
+                unoptimized
+                src={"logo-nobg.png"}
+                width={75}
+                height={75}
+                alt=""
+              />
+            </Link>
+            <Link href="/" className="hidden md:flex">
+              <Image
+                unoptimized
+                src={"logo-nobg.png"}
+                width={125}
+                height={125}
+                alt=""
+              />
+            </Link>
+          </div>
 
           <div className="hidden md:flex flex-row items-center justify-center space-x-2 md:space-x-4">
-            <Link
-              href="/"
-              className={`header-link ${
-                pathname === "/" && "header-current-page"
-              }`}
-            >
-              Home
-            </Link>
             {user && (
               <Link
                 href="/dashboard"
@@ -61,17 +70,24 @@ const Header = () => {
                 Dashboard
               </Link>
             )}
+            {/* <Link href="/about">About</Link> */}
             {/* <Link href="/feedback" target="_blank">Feedback</Link> */}
           </div>
         </div>
         {user ? (
-          <div className="hidden md:flex items-center justify-center">
-            <Link href="/auth?type=login" className="header-link">
-              {user.email}
-            </Link>
+          <div className="flex items-center justify-center">
+            <p
+              onClick={() => {
+                navigate("/");
+                logout();
+              }}
+              className="header-link"
+            >
+              {userData?.name}
+            </p>
           </div>
         ) : (
-          <div className="hidden md:flex flex-row items-center justify-center space-x-2 md:space-x-4">
+          <div className="flex flex-row items-center justify-center space-x-2 md:space-x-4">
             <Link href="/auth?type=login" className="header-link">
               Login
             </Link>

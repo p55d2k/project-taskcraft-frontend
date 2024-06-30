@@ -1,6 +1,6 @@
 import Banner from "@/components/Banner";
 
-const Home = () => {
+const Welcome = () => {
   return (
     <div>
       <Banner />
@@ -8,4 +8,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Welcome;
