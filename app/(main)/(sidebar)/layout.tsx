@@ -12,11 +12,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-col md:flex-row">
+    <div className="flex flex-col lg:flex-row">
       <MobileSidebar />
       <Sidebar />
-      <main className="pt-24 lg:pt-0 lg:pl-64 h-full">
-        <div className="px-6 mx-auto pt-6 h-full mb-8">
+      <main className="pt-24 lg:pt-0 lg:pl-64 h-full w-full">
+        <div className="mx-auto h-full p-8 w-full">
           {children}
         </div>
       </main>

@@ -8,7 +8,7 @@ import SidebarItem from "./SidebarItem";
 import SidebarLink from "./SidebarLink";
 
 import useAuth from "@/hooks/useAuth";
-import { navigate } from "@/utils/actions";
+import useData from "@/hooks/useData";
 
 import { MdLogout, MdAccountCircle } from "react-icons/md";
 import { FaHome, FaVideo } from "react-icons/fa";
@@ -19,6 +19,7 @@ import { TbReport, TbReportSearch } from "react-icons/tb";
 
 const Sidebar = () => {
   const { logout } = useAuth();
+  const { userData } = useData();
 
   return (
     <div className="fixed w-64 h-screen overflow-y-scroll hidden lg:flex flex-col justify-between py-4 px-6 bg-[#141414]">
@@ -79,7 +80,11 @@ const Sidebar = () => {
       </div>
 
       <div className="flex flex-col space-y-1 border-t-2 border-white py-3 mt-6">
-        <SidebarLink Icon={MdAccountCircle} text="Account" link="/account" />
+        <SidebarLink
+          Icon={MdAccountCircle}
+          text={userData?.name || "Account"}
+          link="/account"
+        />
         <SidebarItem
           Icon={MdLogout}
           text="Logout"

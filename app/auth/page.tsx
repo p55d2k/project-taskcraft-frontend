@@ -87,7 +87,7 @@ const Auth = () => {
       <Link href="/" className="absolute hidden sm:flex left-6 top-6">
         <Image
           unoptimized
-          src={"logo-nobg.png"}
+          src={"/logo-nobg.png"}
           width={100}
           height={100}
           alt=""
@@ -106,7 +106,7 @@ const Auth = () => {
             <input
               type="email"
               placeholder="Email"
-              className="auth-input"
+              className="input-field"
               id="email_input"
               {...register("email", { required: true })}
             />
@@ -122,7 +122,7 @@ const Auth = () => {
               <input
                 type="text"
                 placeholder="Username"
-                className="auth-input"
+                className="input-field"
                 id="uname_input"
                 {...register("uname", { required: true })}
               />
@@ -139,7 +139,7 @@ const Auth = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="auth-input"
+                className="input-field"
                 {...register("password", { required: true })}
               />
               <p
@@ -163,7 +163,7 @@ const Auth = () => {
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm Password"
-                  className="auth-input"
+                  className="input-field"
                   {...register("confirmPassword", { required: true })}
                 />
                 <p

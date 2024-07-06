@@ -1,6 +1,8 @@
 import { DataProvider } from "@/hooks/useData";
 import { AuthProvider } from "@/hooks/useAuth";
 
+import { Toaster } from "react-hot-toast";
+
 import { Roboto } from "next/font/google";
 import "./globals.css";
 
@@ -18,7 +20,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={roboto.className}>
         <AuthProvider>
-          <DataProvider>{children}</DataProvider>
+          <DataProvider>
+            <Toaster position="bottom-center" reverseOrder={false} />
+            {children}
+          </DataProvider>
         </AuthProvider>
       </body>
     </html>

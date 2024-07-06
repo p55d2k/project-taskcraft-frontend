@@ -17,7 +17,7 @@ const SidebarLink = ({ link, Icon, text }: SidebarLinkProps): JSX.Element => {
     <Link
       href={link}
       className={`flex items-center space-x-3 cursor-pointer p-2 px-3 bg-transparent text-white hover:bg-[#1f1f1f] transition-all duration-300 ease-in-out ${
-        pathname === link && "border-l-2 border-white"
+        pathname === link && "border-l-2 border-white !bg-[#393939]"
       }`}
     >
       <Icon size={24} />

@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useContext,
-  createContext,
-  use,
-} from "react";
+import { useState, useMemo, useEffect, useContext, createContext } from "react";
 import { usePathname } from "next/navigation";
 
 import { auth, db } from "@/firebase";
@@ -26,6 +19,7 @@ import {
 import { ref, set } from "firebase/database";
 
 import { navigate } from "@/utils/actions";
+import { UserData } from "@/typings";
 
 interface IAuth {
   user: User | null;
@@ -74,8 +68,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (user) {
         setUser(user);
 
-        // if (!user.emailVerified && router.pathname !== "/auth/verify-email")
-        //   navigate("/auth/verify-email");
+        if (!user.emailVerified && pathname !== "/auth/verify-email")
+          navigate("/auth/verify-email");
 
         setLoading(false);
       } else {
@@ -126,14 +120,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
           const reference = ref(db, "users/" + user.uid);
           set(reference, {
+            createdAt: Date.now(),
             email: user.email,
             name: uname,
-            createdAt: Date.now(),
             ips: [],
-          });
+            notifications: [],
+            projects: [],
+            tasks: [],
+          } as UserData);
 
-          // navigate("/auth/verify-email");
-          navigate("/dashboard");
+          navigate("/auth/verify-email");
+          // navigate("/dashboard");
         }
       })
       .catch((error) => {

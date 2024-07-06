@@ -1,28 +1,27 @@
 "use client";
 
-// userData: data updated on firestore
-// getUserData: get data locally
-// setUserData: set data locally
-// deleteUserData: delete data locally
-// deleteProfileData: delete data locally
-// when userData changes, use useEffect to push to firestore so it will update on other devices too
-
 import { createContext, useContext, useEffect, useState } from "react";
 import useAuth from "./useAuth";
 
-import { onValue, ref, remove, update } from "firebase/database";
+import {
+  DatabaseReference,
+  onValue,
+  ref,
+  remove,
+  update,
+} from "firebase/database";
 import { db } from "@/firebase";
 
-import { UserData } from "@/typings";
+import { ProjectData, UserData } from "@/typings";
 
 interface IDataContext {
   userData: UserData | null;
-  projectData: any | null;
+  projectData: ProjectData | null;
   projectId: string;
   setProjectId: (id: string) => void;
   setUserData: (data: UserData) => void;
   deleteUserData: () => void;
-  setProjectData: (data: any) => void;
+  setProjectData: (data: ProjectData) => void;
   deleteProjectData: () => void;
 }
 
@@ -46,10 +45,14 @@ export const DataProvider = ({ children }: DataProviderProps) => {
   const [projectId, setProjectId] = useState<string>("");
 
   const [userData, setUserDataLocally] = useState<UserData | null>(null);
-  const [projectData, setProjectDataLocally] = useState<any | null>(null);
+  const [projectData, setProjectDataLocally] = useState<ProjectData | null>(
+    null
+  );
 
-  const [docRef, setDocRef] = useState<any>(null);
-  const [projectDocRef, setProjectDocRef] = useState<any>(null);
+  const [docRef, setDocRef] = useState<DatabaseReference | null>(null);
+  const [projectDocRef, setProjectDocRef] = useState<DatabaseReference | null>(
+    null
+  );
 
   const { user } = useAuth();
 
@@ -119,7 +122,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
     setUserDataLocally(null);
   };
 
-  const setProjectData = (data: any) => {
+  const setProjectData = (data: ProjectData) => {
     if (!projectId) return;
     setProjectDataLocally(data);
   };

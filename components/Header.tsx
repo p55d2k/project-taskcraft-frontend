@@ -76,13 +76,7 @@ const Header = () => {
         </div>
         {user ? (
           <div className="flex items-center justify-center">
-            <p
-              onClick={() => {
-                navigate("/");
-                logout();
-              }}
-              className="header-link"
-            >
+            <p onClick={() => navigate("/account")} className="header-link">
               {userData?.name}
             </p>
           </div>
