@@ -25,7 +25,7 @@ const NewProjectPage1 = ({
         <p
           className={`text-xl md:text-2xl xl:text-3xl text-center lg:text-left lg:pl-1 ${kanit.className} font-semibold`}
         >
-          Let's start by giving your project a name
+          Let&apos;s start by giving your project a name
         </p>
         <input
           type="text"
