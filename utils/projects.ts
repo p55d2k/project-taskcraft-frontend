@@ -1,6 +1,6 @@
 "use client";
 
-import { ref, get, child, set } from "firebase/database";
+import { ref, get, child, set, update } from "firebase/database";
 import { db } from "@/firebase";
 
 import { ProjectData, UserProjectStatus } from "@/typings";
@@ -84,6 +84,22 @@ export const createProject = async (
     );
     await Promise.all(mentorPromises);
 
+    return "success";
+  } catch (error) {
+    console.error(error);
+    return "failed";
+  }
+};
+
+export const addMembers = (
+  uid: String[],
+  UserProjectStatus:UserProjectStatus
+): "success" | "failed" => {
+  try {
+    update(ref(db, `projects/${UserProjectStatus.id}/members`), uid);
+    for (let i=0; i < uid.length; i++) {
+      update(ref(db, `users/${uid[i]}/projects`), UserProjectStatus)
+    } 
     return "success";
   } catch (error) {
     console.error(error);
