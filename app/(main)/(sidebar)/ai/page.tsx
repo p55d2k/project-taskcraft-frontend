@@ -77,7 +77,7 @@ const AskAI = () => {
               <div className="flex flex-col space-y-3 items-center h-full justify-center text-center">
                 <FaBrain className="text-6xl" />
                 <p className="text-lg md:text-xl max-w-md">
-                  Hi, I'm TaskCraft AI. I'm here to help you with anything you
+                  Hi, I&apos;m TaskCraft AI. I&apos;m here to help you with anything you
                   need. Ask me anything!
                 </p>
               </div>
