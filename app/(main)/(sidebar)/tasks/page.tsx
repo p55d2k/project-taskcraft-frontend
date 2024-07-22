@@ -4,16 +4,16 @@ import useData from "@/hooks/useData";
 import useAuth from "@/hooks/useAuth";
 
 import { navigate } from "@/utils/actions";
+import { getTasksForUserInProject } from "@/utils/tasks";
 import { kanit } from "@/utils/fonts";
 import { getUserRoleInProject } from "@/utils/users";
-import { getTasksForUserInProject } from "@/utils/tasks";
-import { getGPTResponse } from "@/utils/ai";
 
 import { AiOutlineLoading } from "react-icons/ai";
 import { useEffect, useState } from "react";
 
 import { TaskData } from "@/typings";
-import { OpenAIResponse } from "@/openai";
+
+import Link from "next/link";
 
 const Dashboard = () => {
   const { projectData, projectId } = useData();
@@ -57,22 +57,33 @@ const Dashboard = () => {
       )}
 
       <div className="flex flex-col space-y-4 md:space-y-6 p-4 md:p-8 lg:px-12 xl:px-16 divide-y-2 divide-[gray]">
-        <div className="flex flex-col space-y-2" id="header">
-          <h1
-            className={`${kanit.className} text-2xl md:text-3xl lg:text-4xl text-[gray]`}
-          >
-            <span className="text-4xl md:text-5xl lg:text-6xl font-medium text-white pr-3">
-              {projectData?.name}
-            </span>
-            Dashboard
-          </h1>
-
-          <span className="hidden sm:flex lg:text-lg capitalize text-[gray]">
-            Role: {role || "N/A"}
+        <h1
+          className={`${kanit.className} text-2xl md:text-3xl lg:text-4xl text-[gray]`}
+        >
+          <span className="text-4xl md:text-5xl lg:text-6xl font-medium text-white pr-3">
+            {projectData?.name}
           </span>
-        </div>
+          Tasks
+        </h1>
 
         <div className="w-full h-full flex flex-col space-y-4 pt-4 md:pt-6">
+          <div className="flex flex-row justify-between items-center">
+            <p className="lg:text-lg">
+              {role === "member"
+                ? "You are a member, and cannot create or modify tasks."
+                : `You are a ${role}, and can create and modify tasks.`}
+            </p>
+            {role !== "member" && (
+              <Link
+                href={"/tasks/new"}
+                className={`${
+                  loading ? "button-disabled" : "button-primary"
+                } !w-auto !py-2`}
+              >
+                Create Task
+              </Link>
+            )}
+          </div>
           {tasksAssignedToUser.length > 0 && (
             <div className="flex flex-col p-4 md:px-6 rounded space-y-2 bg-[#141414] divide-y-2 divide-[gray]">
               <h2 className="text-xl md:text-2xl ">Your Tasks</h2>

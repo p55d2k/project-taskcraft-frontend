@@ -16,6 +16,8 @@ import { IoMdSchool, IoMdSettings, IoIosChatboxes } from "react-icons/io";
 import { TfiWrite } from "react-icons/tfi";
 import { GoArrowSwitch } from "react-icons/go";
 import { TbReport, TbReportSearch } from "react-icons/tb";
+import { MdTaskAlt } from "react-icons/md";
+import { LuBrainCircuit } from "react-icons/lu";
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -39,6 +41,8 @@ const Sidebar = () => {
           <SidebarSection title="quick links">
             <SidebarLink Icon={FaHome} text="Home" link="/dashboard" />
             <SidebarLink Icon={IoIosChatboxes} text="Chat" link="/chat" />
+            <SidebarLink Icon={LuBrainCircuit} text="Ask AI" link="/ai" />
+            <SidebarLink Icon={MdTaskAlt} text="Tasks" link="/tasks" />
             <SidebarLink Icon={FaVideo} text="Meeting" link="/meet" />
             <SidebarLink
               Icon={TbReportSearch}

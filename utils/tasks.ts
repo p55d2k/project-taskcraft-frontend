@@ -5,98 +5,89 @@ import { db } from "@/firebase";
 
 import { TaskData } from "@/typings";
 
-export const getTask = (tid: string): TaskData | null => {
-  let taskData: TaskData | null = null;
+export const getTasksForUserInProject = async (
+  uid: string,
+  pid: string
+): Promise<TaskData[]> => {
+  const dbRef = ref(db);
+  let tasks: TaskData[] = [];
+
+  try {
+    const snapshot = await get(child(dbRef, `projects/${pid}/tasks`));
+
+    if (snapshot.exists()) {
+      const projectTasks = snapshot.val();
+
+      for (const task in projectTasks) {
+        const taskData = await getTask(task);
+
+        if (taskData.assignedTo.includes(uid)) {
+          tasks.push(taskData);
+        }
+      }
+    }
+
+    return tasks;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getTask = async (tid: string): Promise<TaskData> => {
   const dbRef = ref(db);
 
-  get(child(dbRef, `tasks/${tid}`))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        taskData = snapshot.val();
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-
-  return taskData;
-};
-
-export const createTask = (taskData: TaskData): "success" | "failed" => {
   try {
-    set(ref(db, `tasks/${taskData.id}`), taskData);
+    const snapshot = await get(child(dbRef, `tasks/${tid}`));
 
-    taskData.assignedTo.forEach((uid: string) => {
-      get(child(ref(db), `users/${uid}/tasks`))
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            const userTasks = snapshot.val();
-            userTasks.push(taskData.id);
-
-            set(ref(db, `users/${uid}/tasks`), userTasks);
-          } else {
-            set(ref(db, `users/${uid}/tasks`), [taskData.id]);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-          return "failed";
-        });
-    });
-
-    return "success";
+    if (snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      throw new Error("Task not found");
+    }
   } catch (error) {
     console.error(error);
-    return "failed";
+    throw error;
   }
 };
 
-export const updateTask = (taskData: TaskData): "success" | "failed" => {
+export const addTaskToProject = async (
+  tid: string,
+  pid: string
+): Promise<void> => {
   try {
-    set(ref(db, `tasks/${taskData.id}`), taskData);
+    const snapshot = await get(
+      child(ref(db), `projects/${pid}/tasks_progress`)
+    );
 
-    return "success";
+    let tasksInProgress: string[];
+
+    if (snapshot.exists()) {
+      tasksInProgress = snapshot.val();
+    } else {
+      tasksInProgress = [];
+    }
+
+    tasksInProgress.push(tid);
+
+    await set(ref(db, `projects/${pid}/tasks_progress`), tasksInProgress);
   } catch (error) {
     console.error(error);
-    return "failed";
+    throw error;
   }
 };
 
-export const deleteTask = (tid: string): "success" | "failed" => {
+export const createTask = async (
+  taskData: TaskData,
+  projectId: string
+): Promise<void> => {
+  const dbRef = ref(db);
+
   try {
-    get(child(ref(db), `tasks/${tid}`))
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const taskData = snapshot.val();
-
-          taskData.assignedTo.forEach((uid: string) => {
-            get(child(ref(db), `users/${uid}/tasks`))
-              .then((snapshot) => {
-                if (snapshot.exists()) {
-                  const userTasks = snapshot.val();
-                  const index = userTasks.indexOf(tid);
-                  userTasks.splice(index, 1); // remove task id from user's tasks
-
-                  set(ref(db, `users/${uid}/tasks`), userTasks);
-                }
-              })
-              .catch((error) => {
-                console.error(error);
-                return "failed";
-              });
-          });
-
-          set(ref(db, `tasks/${tid}`), null);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        return "failed";
-      });
-
-    return "success";
+    await set(child(dbRef, `tasks/${taskData.id}`), taskData);
+    await addTaskToProject(taskData.id, projectId);
   } catch (error) {
     console.error(error);
-    return "failed";
+    throw error;
   }
 };

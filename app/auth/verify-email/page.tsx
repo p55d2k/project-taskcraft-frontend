@@ -1,26 +1,20 @@
 "use client";
 
-import { getUserProjects } from "@/utils/projects";
 import { navigate } from "@/utils/actions";
 
 import useAuth from "@/hooks/useAuth";
-import useData from "@/hooks/useData";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
-import { auth } from "@/firebase";
 
 const VerifyEmail = () => {
   const [emailVerified, setEmailVerified] = useState<boolean | undefined>(
     false
   );
   const [resendCountdown, setResendCountdown] = useState<number>(-1);
-  const [continueLink, setContinueLink] = useState<string>("/");
 
   const { verifyEmail, user } = useAuth();
-  const { userData } = useData();
 
   const sendAndCheckEmail = () => {
     if (emailVerified) return;
@@ -49,23 +43,10 @@ const VerifyEmail = () => {
 
   useEffect(() => {
     if (user?.emailVerified) {
-      navigate("/dashboard");
+      navigate("/projects");
       return;
     }
 
-    setContinueLink("/projects");
-
-    async function checkProjects() {
-      if (!user) return;
-
-      const projects = await getUserProjects(user.uid);
-
-      if (projects) {
-        setContinueLink("/dashboard");
-      }
-    }
-
-    checkProjects();
     sendAndCheckEmail();
   }, []);
 
@@ -113,7 +94,7 @@ const VerifyEmail = () => {
 
         {emailVerified ? (
           <Link
-            href={continueLink}
+            href="/projects"
             className="text-lg font-semibold text-white hover:underline"
           >
             Continue

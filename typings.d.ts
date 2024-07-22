@@ -7,7 +7,7 @@ export interface UserProjectStatus {
 export interface TaskData {
   id: string; // tid
   description: string;
-  status: "completed" | "pending" | "progress" | "rejected" | "overdue";
+  status: "completed" | "progress" | "overdue";
   priority: "low" | "medium" | "high";
 
   assignedTo: string[]; // uid
@@ -25,7 +25,13 @@ export interface UserData {
 
   notifications: string[]; // the message
   projects: UserProjectStatus[];
-  tasks: string[]; // tid
+}
+
+export interface ChatMessage {
+  id: string; // uid
+  name: string;
+  message: string;
+  timestamp: number;
 }
 
 export interface ProjectData {
@@ -35,18 +41,19 @@ export interface ProjectData {
 
   createdAt: number;
 
+  chat: ChatMessage[];
+
   owner: string; // uid
   members: string[]; // does not include owner, uid
   mentors: string[]; // uid
 
-  tasks_pending: string[]; // tid
+  tasks_progress: string[]; // tid
   tasks_completed: string[]; // tid
-  tasks_rejected: string[]; // tid
   tasks_overdue: string[]; // tid
 }
 
 /*
 - users -> uid -> { email, name, ips, projects, tasks }
-- projects -> pid -> { name, description, owner, members, mentors, tasks_pending, tasks_progress, tasks_completed }
+- projects -> pid -> { name, description, owner, members, mentors, tasks_progress, tasks_completed }
 - tasks -> tid -> { description, status, assignedTo, assignedBy, createdAt, dueDate }
 */

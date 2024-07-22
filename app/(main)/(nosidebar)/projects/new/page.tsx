@@ -42,15 +42,16 @@ const NewProject = () => {
         name: name,
         status: "active",
 
+        chat: [],
+
         createdAt: Date.now(),
 
         owner: user.uid,
         members: members,
         mentors: mentors,
 
-        tasks_pending: [],
+        tasks_progress: [],
         tasks_completed: [],
-        tasks_rejected: [],
         tasks_overdue: [],
       };
 

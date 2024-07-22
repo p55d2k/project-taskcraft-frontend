@@ -48,7 +48,7 @@ const Auth = () => {
           navigate("/dashboard");
         })
         .catch((error: any) => {
-          setError(error.message);
+          setError(error.message.replace("Firebase: ", ""));
           setLoading(false);
         });
     } else {
@@ -59,7 +59,7 @@ const Auth = () => {
       }
 
       await signUp(email, password, uname).catch((error: any) => {
-        setError(error.message);
+        setError(error.message.replace("Firebase: ", ""));
         setLoading(false);
       });
     }
@@ -96,7 +96,7 @@ const Auth = () => {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="relative mt-24 space-y-7 rounded bg-black/75 py-10 px-6 md:mt-0 md:max-w-md md:px-14 lg:scale-90 2xl:scale-125"
+        className="relative mt-24 space-y-7 rounded bg-black/75 py-10 px-6 md:mt-0 md:max-w-md md:px-14"
       >
         <h1 className="text-4xl font-semibold">
           {login ? "Sign In" : "Sign Up"}

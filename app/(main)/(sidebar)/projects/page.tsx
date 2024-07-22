@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import { getProject, getUserProjects } from "@/utils/projects";
+import { getProject } from "@/utils/projects";
 import { navigate } from "@/utils/actions";
 import { kanit } from "@/utils/fonts";
 
@@ -16,6 +16,7 @@ import { UserProjectStatus } from "@/typings";
 import { AiOutlineLoading } from "react-icons/ai";
 import { IoAdd } from "react-icons/io5";
 import toast from "react-hot-toast";
+import { getUserProjects } from "@/utils/users";
 
 const ProjectsPage = () => {
   const { user } = useAuth();
@@ -149,7 +150,11 @@ const ProjectsPage = () => {
               }}
             >
               <div className="flex flex-col">
-                <h2 className="font-semibold text-xl">{project.name}</h2>
+                <h2 className="font-semibold text-xl">
+                  {project.name.length > 12
+                    ? project.name.slice(0, 12) + "..."
+                    : project.name}
+                </h2>
                 <p className="text-gray-500">
                   ID: {project.id.slice(0, 10)}...
                 </p>

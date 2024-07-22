@@ -124,9 +124,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             email: user.email,
             name: uname,
             ips: [],
+
             notifications: [],
             projects: [],
-            tasks: [],
           } as UserData);
 
           navigate("/auth/verify-email");
@@ -239,7 +239,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     deleteUser(auth.currentUser!)
       .then(() => {
         setUser(null);
-        // navigate("/auth/goodbye");
+        navigate("/auth/goodbye");
       })
       .catch((error) => {
         throw new Error(error.message);

@@ -4,13 +4,16 @@ import { ref, get, child, set } from "firebase/database";
 import { db } from "@/firebase";
 
 import { ProjectData, UserProjectStatus } from "@/typings";
+import { getUserProjects, setUserProjects } from "./users";
 
-export const getUserProjects = async (
-  uid: string
-): Promise<UserProjectStatus[] | null> => {
+export const getMembers = async (pid: string): Promise<string[]> => {
+  if (!(await hasMembers(pid))) {
+    return [];
+  }
+
   try {
     const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, `users/${uid}/projects`));
+    const snapshot = await get(child(dbRef, `projects/${pid}/members`));
 
     if (snapshot.exists()) {
       return snapshot.val();
@@ -19,7 +22,47 @@ export const getUserProjects = async (
     }
   } catch (error) {
     console.error(error);
-    return null;
+    throw new Error("Failed to get members");
+  }
+};
+
+export const getMemberNames = async (pid: string): Promise<string[]> => {
+  const members = await getMembers(pid);
+
+  const memberNamesPromises = members.map(async (uid) => {
+    const snapshot = await get(child(ref(db), `users/${uid}/name`));
+    return snapshot.val();
+  });
+
+  return Promise.all(memberNamesPromises);
+};
+
+export const updateUserProjects = async (
+  uid: string,
+  role: "owner" | "member" | "mentor",
+  projectData: ProjectData
+) => {
+  try {
+    const snapshot = await get(child(ref(db), `users/${uid}/projects`));
+
+    let userProjects: UserProjectStatus[];
+
+    if (snapshot.exists()) {
+      userProjects = snapshot.val();
+    } else {
+      userProjects = [];
+    }
+
+    userProjects.push({
+      id: projectData.id,
+      name: projectData.name,
+      role: role,
+    });
+
+    await set(ref(db, `users/${uid}/projects`), userProjects);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 
@@ -45,42 +88,18 @@ export const createProject = async (
   try {
     await set(ref(db, `projects/${projectData.id}`), projectData);
 
-    const updateUserProjects = async (
-      uid: string,
-      role: "owner" | "member" | "mentor"
-    ) => {
-      try {
-        const snapshot = await get(child(ref(db), `users/${uid}/projects`));
-        let userProjects: UserProjectStatus[];
-        if (snapshot.exists()) {
-          userProjects = snapshot.val();
-        } else {
-          userProjects = [];
-        }
-        userProjects.push({
-          id: projectData.id,
-          name: projectData.name,
-          role: role,
-        });
-        await set(ref(db, `users/${uid}/projects`), userProjects);
-      } catch (error) {
-        console.error(error);
-        throw new Error("Failed to update user projects");
-      }
-    };
-
     // Update owner projects
-    await updateUserProjects(projectData.owner, "owner");
+    await updateUserProjects(projectData.owner, "owner", projectData);
 
     // Update member projects
     const memberPromises = projectData.members.map((uid) =>
-      updateUserProjects(uid, "member")
+      updateUserProjects(uid, "member", projectData)
     );
     await Promise.all(memberPromises);
 
     // Update mentor projects
     const mentorPromises = projectData.mentors.map((uid) =>
-      updateUserProjects(uid, "mentor")
+      updateUserProjects(uid, "mentor", projectData)
     );
     await Promise.all(mentorPromises);
 
@@ -104,82 +123,135 @@ export const updateProject = (
   }
 };
 
-export const deleteProject = (pid: string): "success" | "failed" => {
+export const deleteProject = async (pid: string): Promise<void> => {
   try {
-    get(child(ref(db), `projects/${pid}`))
-      .then((projectSnapshot) => {
-        if (projectSnapshot.exists()) {
-          const projectData: ProjectData = projectSnapshot.val();
+    const projectData = await getProject(pid);
 
-          projectData.mentors.forEach((uid: string) => {
-            get(child(ref(db), `users/${uid}/projects`))
-              .then((snapshot) => {
-                if (snapshot.exists()) {
-                  const userProjects: UserProjectStatus[] = snapshot.val();
-                  const index = userProjects.findIndex(
-                    (project) => project.id === pid
-                  );
-                  userProjects.splice(index, 1); // remove project id from user's projects
+    if (!projectData) {
+      throw new Error("Project does not exist");
+    }
 
-                  set(ref(db, `users/${uid}/projects`), userProjects);
-                }
-              })
-              .catch((error) => {
-                console.error(error);
-                return "failed";
-              });
-          });
+    const memberPromises = projectData.members.map((uid) =>
+      leaveProject(pid, uid)
+    );
+    await Promise.all(memberPromises);
 
-          projectData.members.forEach((uid: string) => {
-            get(child(ref(db), `users/${uid}/projects`))
-              .then((snapshot) => {
-                if (snapshot.exists()) {
-                  const userProjects: UserProjectStatus[] = snapshot.val();
-                  const index = userProjects.findIndex(
-                    (project) => project.id === pid
-                  );
-                  userProjects.splice(index, 1); // remove project id from user's projects
+    const mentorPromises = projectData.mentors.map((uid) =>
+      leaveProject(pid, uid)
+    );
+    await Promise.all(mentorPromises);
 
-                  set(ref(db, `users/${uid}/projects`), userProjects);
-                }
-              })
-              .catch((error) => {
-                console.error(error);
-                return "failed";
-              });
-          });
+    const ownerProjects: UserProjectStatus[] = await getUserProjects(
+      projectData.owner
+    );
+    const index = ownerProjects.findIndex((project) => project.id === pid);
 
-          get(child(ref(db), `users/${projectData.owner}/projects`))
-            .then((snapshot) => {
-              if (snapshot.exists()) {
-                const userProjects: UserProjectStatus[] = snapshot.val();
-                const index = userProjects.findIndex(
-                  (project) => project.id === pid
-                );
-                userProjects.splice(index, 1); // remove project id from user's projects
+    if (index > -1) {
+      ownerProjects.splice(index, 1);
+      setUserProjects(projectData.owner, ownerProjects);
+    } else {
+      throw new Error("Owner does not have project in their projects");
+    }
 
-                set(
-                  ref(db, `users/${projectData.owner}/projects`),
-                  userProjects
-                );
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-              return "failed";
-            });
+    await set(ref(db, `projects/${pid}`), null);
+  } catch (error: any) {
+    console.error(error);
+    throw new Error(`Failed to delete project: ${error.message}`);
+  }
+};
 
-          set(ref(db, `projects/${pid}`), null);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        return "failed";
-      });
+export const hasMembers = async (pid: string): Promise<boolean> => {
+  try {
+    const snapshot = await get(child(ref(db), `projects/${pid}/members`));
+    return snapshot.exists();
   } catch (error) {
     console.error(error);
-    return "failed";
+    throw new Error("Failed to check if project has members");
   }
+};
 
-  return "success";
+export const getOwner = async (pid: string): Promise<string> => {
+  try {
+    const snapshot = await get(child(ref(db), `projects/${pid}/owner`));
+    return snapshot.val();
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to get project owner");
+  }
+};
+
+export const leaveProject = async (pid: string, uid: string): Promise<void> => {
+  try {
+    const projectData = await getProject(pid);
+
+    if (!projectData) {
+      throw new Error("Project does not exist");
+    }
+
+    const userProjects: UserProjectStatus[] = await getUserProjects(uid);
+    const index = userProjects.findIndex((project) => project.id === pid);
+
+    if (index > -1) {
+      userProjects.splice(index, 1);
+      setUserProjects(uid, userProjects);
+    } else {
+      throw new Error("User does not have project in their projects");
+    }
+
+    if (projectData.owner === uid) {
+      throw new Error("Owner cannot leave project");
+    }
+
+    await set(
+      ref(db, `projects/${pid}/members`),
+      projectData.members.filter((member) => member !== uid)
+    );
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to leave project");
+  }
+};
+
+export const transferOwnership = async (
+  pid: string,
+  newOwner: string
+): Promise<void> => {
+  try {
+    const oldOwner = await getOwner(pid);
+
+    await set(ref(db, `projects/${pid}/owner`), newOwner);
+    await set(ref(db, `projects/${pid}/members/${oldOwner}`), null);
+    await set(ref(db, `projects/${pid}/members/${newOwner}`), true);
+
+    const newOwnerProjects: UserProjectStatus[] = await getUserProjects(
+      newOwner
+    );
+    const newOwnerIndex = newOwnerProjects.findIndex(
+      (project) => project.id === pid
+    );
+
+    if (newOwnerIndex > -1) {
+      newOwnerProjects[newOwnerIndex].role = "owner";
+      setUserProjects(newOwner, newOwnerProjects);
+    } else {
+      throw new Error("New owner does not have project in their projects");
+    }
+
+    const oldOwnerProjects: UserProjectStatus[] = await getUserProjects(
+      oldOwner
+    );
+    const oldOwnerIndex = oldOwnerProjects.findIndex(
+      (project) => project.id === pid
+    );
+
+    if (oldOwnerIndex > -1) {
+      oldOwnerProjects[oldOwnerIndex].role = "member";
+      setUserProjects(oldOwner, oldOwnerProjects);
+    } else {
+      throw new Error("Old owner does not have project in their projects");
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to transfer ownership");
+  }
 };

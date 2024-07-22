@@ -20,7 +20,6 @@ interface IDataContext {
   projectId: string;
   setProjectId: (id: string) => void;
   setUserData: (data: UserData) => void;
-  deleteUserData: () => void;
   setProjectData: (data: ProjectData) => void;
   deleteProjectData: () => void;
 }
@@ -31,7 +30,6 @@ const DataContext = createContext<IDataContext>({
   projectId: "",
   setProjectId: () => {},
   setUserData: () => {},
-  deleteUserData: () => {},
   setProjectData: () => {},
   deleteProjectData: () => {},
 });
@@ -117,11 +115,6 @@ export const DataProvider = ({ children }: DataProviderProps) => {
     setUserDataLocally(data);
   };
 
-  const deleteUserData = () => {
-    if (!userId) return;
-    setUserDataLocally(null);
-  };
-
   const setProjectData = (data: ProjectData) => {
     if (!projectId) return;
     setProjectDataLocally(data);
@@ -140,7 +133,6 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         projectId,
         setProjectId,
         setUserData,
-        deleteUserData,
         setProjectData,
         deleteProjectData,
       }}
