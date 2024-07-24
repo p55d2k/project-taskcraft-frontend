@@ -1,11 +1,14 @@
 export interface UserProjectStatus {
   id: string; // pid
   name: string;
-  role: "owner" | "member" | "mentor";
+  role: Role;
 }
+
+export type Role = "owner" | "member" | "mentor";
 
 export interface TaskData {
   id: string; // tid
+  project: string; // pid
   description: string;
   status: "completed" | "progress" | "overdue";
   priority: "low" | "medium" | "high";
@@ -14,6 +17,7 @@ export interface TaskData {
   assignedBy: string; // uid
 
   createdAt: number;
+  completedAt: number;
   dueDate: number;
 }
 

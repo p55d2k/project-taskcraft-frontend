@@ -13,18 +13,22 @@ export const getTasksForUserInProject = async (
   let tasks: TaskData[] = [];
 
   try {
-    const snapshot = await get(child(dbRef, `projects/${pid}/tasks`));
+    const snapshot = await get(child(dbRef, `projects/${pid}/tasks_progress`));
 
     if (snapshot.exists()) {
-      const projectTasks = snapshot.val();
+      const projectTasks: string[] = snapshot.val();
 
-      for (const task in projectTasks) {
-        const taskData = await getTask(task);
+      const taskPromises = projectTasks.map(async (taskId) => {
+        const taskData = await getTask(taskId);
 
         if (taskData.assignedTo.includes(uid)) {
-          tasks.push(taskData);
+          return taskData;
         }
-      }
+        return null;
+      });
+
+      const resolvedTasks = await Promise.all(taskPromises);
+      tasks = resolvedTasks.filter((task): task is TaskData => task !== null);
     }
 
     return tasks;

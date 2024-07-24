@@ -12,12 +12,17 @@ import { UserData } from "@/typings";
 
 import toast from "react-hot-toast";
 
+import { useRecoilState } from "recoil";
+import { loadingAtom } from "@/atoms/loadingAtom";
+
 const AccountPage = () => {
   const { userData, setUserData } = useData();
   const { user } = useAuth();
 
   const [accountName, setAccountName] = useState(userData?.name || "");
   const [saveProfileInfo, setSaveProfileInfo] = useState(false);
+
+  const [loading, setLoading] = useRecoilState(loadingAtom);
 
   useEffect(() => {
     if (userData?.name) {
@@ -27,6 +32,8 @@ const AccountPage = () => {
 
   useEffect(() => {
     if (saveProfileInfo) {
+      setLoading(true);
+
       setUserData({ ...userData, name: accountName } as UserData);
 
       setSaveProfileInfo(false);
@@ -34,6 +41,8 @@ const AccountPage = () => {
       toast.success("Profile updated successfully", {
         position: "top-right",
       });
+
+      setLoading(false);
     }
   }, [saveProfileInfo]);
 
@@ -44,11 +53,13 @@ const AccountPage = () => {
       >
         Your Account
       </h1>
+
       <div className="py-4 md:py-6 space-y-6 divide-y-2 divide-[gray]">
         <section className="flex flex-col">
           <h3 className="font-semibold text-lg md:text-xl lg:text-2xl">
             Your Profile
           </h3>
+
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-10">
             <label className="inline-block w-full mt-4">
               <span className="font-semibold">User ID, click to copy</span>
@@ -64,6 +75,7 @@ const AccountPage = () => {
                 {user?.uid}
               </button>
             </label>
+
             <label className="inline-block w-full mt-4">
               <span className="font-semibold">Name</span>
               <input
@@ -81,6 +93,7 @@ const AccountPage = () => {
             Save Changes
           </button>
         </section>
+
         {/* <section className="flex flex-col pt-4">
           <h3 className="font-semibold text-lg md:text-xl lg:text-2xl text-red-500">
             Danger Zone

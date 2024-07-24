@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Account | TaskCraft",
+  title: "Dashboard | TaskCraft",
 };
 
 export default function RootLayout({

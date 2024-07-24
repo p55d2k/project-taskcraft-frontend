@@ -8,6 +8,7 @@ import { AiOutlineLoading } from "react-icons/ai";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
+import { getUserRoleInProject } from "@/utils/users";
 import { generateUniqueId } from "@/utils/unique";
 import { createTask } from "@/utils/tasks";
 import { navigate } from "@/utils/actions";
@@ -15,9 +16,12 @@ import { navigate } from "@/utils/actions";
 import useAuth from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
 
-import { TaskData } from "@/typings";
+import { TaskData, Role } from "@/typings";
 
-const NewProject = () => {
+import { useRecoilState } from "recoil";
+import { loadingAtom } from "@/atoms/loadingAtom";
+
+const NewTask = () => {
   const { user } = useAuth();
   const { projectData, projectId } = useData();
 
@@ -29,20 +33,37 @@ const NewProject = () => {
   const [dueDate, setDueDate] = useState<number>(Date.now());
 
   const [tryCreate, setTryCreate] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useRecoilState(loadingAtom);
   const [error, setError] = useState<string>("");
   const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
-    if (!tryCreate) return;
-
-    async function attemptCreateTask() {
+    (async () => {
       if (!user) return;
+      setLoading(true);
 
+      const role: Role | undefined = await getUserRoleInProject(
+        user.uid,
+        projectId
+      );
+
+      if (!role || role === "member") {
+        navigate("/tasks");
+      }
+
+      setLoading(false);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!tryCreate || !user) return;
+
+    (async () => {
       setLoading(true);
 
       const taskData: TaskData = {
         id: generateUniqueId(),
+        project: projectId,
         description: description,
         status: "progress",
         priority: priority,
@@ -51,8 +72,11 @@ const NewProject = () => {
         assignedBy: user.uid,
 
         createdAt: Date.now(),
+        completedAt: 0,
         dueDate: dueDate,
       };
+
+      console.log("Task data", taskData);
 
       await createTask(taskData, projectId)
         .then(() => {
@@ -69,9 +93,7 @@ const NewProject = () => {
           toast.error("Something went wrong. Please try again later.");
           console.error("Failed to create task", error);
         });
-    }
-
-    attemptCreateTask();
+    })();
   }, [tryCreate]);
 
   const setNext = () => {
@@ -93,7 +115,7 @@ const NewProject = () => {
   return (
     <div className="w-screen h-screen">
       {loading && (
-        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-50 z-50 flex justify-center items-center">
+        <div className="loading-parent">
           <AiOutlineLoading className="text-white text-6xl animate-spin" />
         </div>
       )}
@@ -117,15 +139,17 @@ const NewProject = () => {
           setNext={setNext}
         />
       ) : (
-        // <NewTaskPage3
-        //   error={error}
-        //   goBack={goBack}
-        //   setNext={setNext}
-        // />
-        <div></div>
+        <NewTaskPage3
+          date={dueDate}
+          setDate={setDueDate}
+          error={error}
+          setError={setError}
+          goBack={goBack}
+          setNext={setNext}
+        />
       )}
     </div>
   );
 };
 
-export default NewProject;
+export default NewTask;

@@ -29,7 +29,7 @@ const Sidebar = () => {
         <Link href="/dashboard">
           <Image
             unoptimized
-            src={"logo-nobg.png"}
+            src="/logo-nobg.png"
             width={125}
             height={125}
             alt=""

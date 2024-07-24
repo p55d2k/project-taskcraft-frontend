@@ -1,11 +1,13 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 import { getProject } from "@/utils/projects";
 import { navigate } from "@/utils/actions";
+import { getUserProjects } from "@/utils/users";
 import { kanit } from "@/utils/fonts";
 
 import useAuth from "@/hooks/useAuth";
@@ -16,48 +18,51 @@ import { UserProjectStatus } from "@/typings";
 import { AiOutlineLoading } from "react-icons/ai";
 import { IoAdd } from "react-icons/io5";
 import toast from "react-hot-toast";
-import { getUserProjects } from "@/utils/users";
+
+import { useRecoilState } from "recoil";
+import { loadingAtom } from "@/atoms/loadingAtom";
+
+import ProjectCard from "@/components/project/Card";
 
 const ProjectsPage = () => {
   const { user } = useAuth();
-  const { setProjectData, setProjectId } = useData();
+  const { setProjectId } = useData();
 
   const [clickedProjectId, setClickedProjectId] = useState<string | null>(null);
   const [trySwitch, setTrySwitch] = useState<boolean>(false);
 
   const [projects, setProjects] = useState<UserProjectStatus[] | null>(null);
   const [refresh, setRefresh] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useRecoilState(loadingAtom);
+
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!trySwitch) return;
+    if (!trySwitch || !clickedProjectId) return;
 
-    async function getProjectData() {
-      if (!clickedProjectId) return;
-
+    const fetchData = async () => {
       setLoading(true);
 
-      const projectData = await getProject(clickedProjectId);
+      try {
+        const projectData = await getProject(clickedProjectId);
+        if (!projectData) {
+          toast.error("Failed to fetch project data. Please try again later.");
+        } else {
+          // we dont need to set the project data as it is automatically updated in the useData hook
+          setProjectId(clickedProjectId);
 
-      if (projectData === null) {
+          if (searchParams.get("continue"))
+            navigate(searchParams.get("continue") as string);
+          else navigate("/dashboard");
+        }
+      } catch (error) {
         toast.error("Failed to fetch project data. Please try again later.");
-
+      } finally {
         setLoading(false);
-        setTrySwitch(false);
-
-        return;
       }
+    };
 
-      setProjectData(projectData);
-      setProjectId(clickedProjectId);
-
-      setLoading(false);
-      setTrySwitch(false);
-
-      navigate("/dashboard");
-    }
-
-    getProjectData();
+    fetchData();
   }, [trySwitch, clickedProjectId]);
 
   useEffect(() => {
@@ -91,7 +96,7 @@ const ProjectsPage = () => {
   return (
     <div className="w-full h-full">
       {loading && (
-        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-50 z-50 flex justify-center items-center">
+        <div className="loading-parent">
           <AiOutlineLoading className="text-white text-6xl animate-spin" />
         </div>
       )}
@@ -141,26 +146,11 @@ const ProjectsPage = () => {
           </Link>
 
           {projects?.map((project) => (
-            <div
-              className="project-card bg-[#141414] flex-col justify-between"
-              key={project.id}
-              onClick={() => {
-                setClickedProjectId(project.id);
-                setTrySwitch(true);
-              }}
-            >
-              <div className="flex flex-col">
-                <h2 className="font-semibold text-xl">
-                  {project.name.length > 12
-                    ? project.name.slice(0, 12) + "..."
-                    : project.name}
-                </h2>
-                <p className="text-gray-500">
-                  ID: {project.id.slice(0, 10)}...
-                </p>
-              </div>
-              <p className="text-gray-500 capitalize">Role: {project.role}</p>
-            </div>
+            <ProjectCard
+              project={project}
+              setClickedProjectId={setClickedProjectId}
+              setTrySwitch={setTrySwitch}
+            />
           ))}
         </div>
       </div>

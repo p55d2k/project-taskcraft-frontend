@@ -3,6 +3,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 
 import { Toaster } from "react-hot-toast";
 
+import RecoilContextProvider from "./recoilProvider";
+
 import { Roboto } from "next/font/google";
 import "./globals.css";
 
@@ -19,12 +21,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <AuthProvider>
-          <DataProvider>
-            <Toaster position="bottom-center" reverseOrder={false} />
-            {children}
-          </DataProvider>
-        </AuthProvider>
+        <RecoilContextProvider>
+          <AuthProvider>
+            <DataProvider>
+              <Toaster position="bottom-center" reverseOrder={false} />
+              {children}
+            </DataProvider>
+          </AuthProvider>
+        </RecoilContextProvider>
       </body>
     </html>
   );

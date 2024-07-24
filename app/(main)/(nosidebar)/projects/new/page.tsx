@@ -16,6 +16,9 @@ import useAuth from "@/hooks/useAuth";
 import { ProjectData } from "@/typings";
 import useData from "@/hooks/useData";
 
+import { useRecoilState } from "recoil";
+import { loadingAtom } from "@/atoms/loadingAtom";
+
 const NewProject = () => {
   const { user } = useAuth();
   const { setProjectData, setProjectId } = useData();
@@ -25,16 +28,14 @@ const NewProject = () => {
   const [mentors, setMentors] = useState<string[]>([""]);
 
   const [tryCreate, setTryCreate] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useRecoilState(loadingAtom);
   const [error, setError] = useState<string>("");
   const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
-    if (!tryCreate) return;
+    if (!tryCreate || !user) return;
 
-    async function attemptCreateProject() {
-      if (!user) return;
-
+    (async () => {
       setLoading(true);
 
       const projectData: ProjectData = {
@@ -61,8 +62,8 @@ const NewProject = () => {
         setLoading(false);
         setTryCreate(false);
 
-        setProjectData(projectData);
         setProjectId(projectData.id);
+        setProjectData(projectData);
 
         toast.success("Project created successfully!");
         navigate("/dashboard");
@@ -73,9 +74,7 @@ const NewProject = () => {
         toast.error("Something went wrong. Please try again later.");
         console.error("Failed to create project");
       }
-    }
-
-    attemptCreateProject();
+    })();
   }, [tryCreate]);
 
   useEffect(() => {
@@ -106,7 +105,7 @@ const NewProject = () => {
   return (
     <div className="w-screen h-screen">
       {loading && (
-        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-50 z-50 flex justify-center items-center">
+        <div className="loading-parent">
           <AiOutlineLoading className="text-white text-6xl animate-spin" />
         </div>
       )}

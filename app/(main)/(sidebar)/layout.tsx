@@ -1,9 +1,10 @@
 import MobileSidebar from "@/components/MobileSidebar";
 import Sidebar from "@/components/Sidebar";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dashboard | TaskCraft",
+  title: "TaskCraft",
 };
 
 export default function RootLayout({
@@ -16,9 +17,7 @@ export default function RootLayout({
       <MobileSidebar />
       <Sidebar />
       <main className="pt-24 lg:pt-0 lg:pl-64 h-full w-full">
-        <div className="mx-auto h-full p-8 w-full">
-          {children}
-        </div>
+        <div className="mx-auto h-full p-8 w-full">{children}</div>
       </main>
     </div>
   );

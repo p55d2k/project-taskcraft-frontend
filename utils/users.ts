@@ -10,7 +10,19 @@ import {
   leaveProject,
   transferOwnership,
 } from "./projects";
-import { UserProjectStatus } from "@/typings";
+import { Role, UserProjectStatus } from "@/typings";
+
+export const nameFromId = async (id: string): Promise<string> => {
+  const dbRef = ref(db);
+
+  try {
+    const snapshot = await get(child(dbRef, `users/${id}/name`));
+    return snapshot.val();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
 
 export const doesUserExist = async (uid: string): Promise<boolean> => {
   const dbRef = ref(db);
@@ -126,7 +138,7 @@ export const getUserProjectStatus = async (
 export const getUserRoleInProject = async (
   uid: string,
   projectId: string
-): Promise<"owner" | "member" | "mentor" | undefined> => {
+): Promise<Role | undefined> => {
   try {
     const data = await getUserProjectStatus(uid, projectId);
     return data?.role;
@@ -159,7 +171,7 @@ export const isUserInProject = async (
     const snapshot = await get(child(dbRef, `projects/${projectId}/members`));
 
     if (snapshot.exists()) {
-      return Object.keys(snapshot.val()).includes(uid);
+      return snapshot.val().includes(uid);
     } else {
       return false;
     }

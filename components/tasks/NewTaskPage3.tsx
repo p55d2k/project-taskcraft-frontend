@@ -1,6 +1,4 @@
 import { kanit } from "@/utils/fonts";
-import { doesUserExist } from "@/utils/users";
-import useAuth from "@/hooks/useAuth";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { IoAdd } from "react-icons/io5";
@@ -8,68 +6,62 @@ import { IoAdd } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { createTheme, ThemeProvider } from "@mui/material";
+
+import dayjs, { Dayjs } from "dayjs";
+
 interface NewProjectPage3Props {
-  mentors: string[];
-  members: string[];
+  date: number;
+  setDate: (date: number) => void;
   error: string;
-  setMentors: (name: string[]) => void;
   setError: (error: string) => void;
   goBack: () => void;
   setNext: () => void;
 }
 
+const lightTheme = createTheme({
+  palette: {
+    mode: "light", // Switches the theme to light mode
+  },
+});
+
 const NewProjectPage3 = ({
-  mentors,
-  members,
+  date,
+  setDate,
   error,
-  setMentors,
   setError,
   goBack,
   setNext,
 }: NewProjectPage3Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
-  const { user } = useAuth();
+  const [rawDate, setRawDate] = useState<Dayjs | null>(dayjs(date));
 
   useEffect(() => {
     if (!trySubmit) return;
 
-    async function attemptNext() {
-      for (const mentor of mentors) {
-        if (mentor === "") {
-          setError("Please fill in all the fields");
-          setTrySubmit(false);
-          return;
-        }
+    (async () => {
+      if (!rawDate) return;
+      const now = dayjs();
 
-        if (members.includes(mentor)) {
-          setError("A member cannot be a mentor");
-          setTrySubmit(false);
-          return;
-        }
-
-        const exists = await doesUserExist(mentor);
-        if (!exists) {
-          setError(`User with ID "${mentor}" does not exist`);
-          setTrySubmit(false);
-          return;
-        }
-
-        if (mentor === user?.uid) {
-          setError("You cannot mentor yourself");
-          setTrySubmit(false);
-          return;
-        }
+      if (rawDate.isBefore(now)) {
+        setError("Please enter a date in the future.");
+        setTrySubmit(false);
+        return;
       }
+
+      setDate(rawDate.toDate().getTime());
 
       setTrySubmit(false);
       setNext();
-    }
-
-    attemptNext();
+    })();
   }, [trySubmit]);
 
   return (
-    <div className="w-full h-screen flex flex-col lg:flex-row space-y-44 lg:space-y-0 py-12 lg:py-0 justify-between">
+    <div className="w-full h-screen flex flex-col lg:flex-row space-y-44 lg:space-y-0 py-12 lg:py-0 justify-between bg-black">
       <div className="w-full flex flex-col items-center lg:items-start justify-center px-8 lg:px-28 pb-24 lg:pb-0">
         <p className="flex items-center justify-center text-lg text-center lg:text-left lg:pl-1 font-semibold text-gray-400">
           Step 3 of 3
@@ -77,59 +69,55 @@ const NewProjectPage3 = ({
         <p
           className={`text-xl md:text-2xl xl:text-3xl text-center lg:text-left lg:pl-1 ${kanit.className} font-semibold`}
         >
-          Who should mentor this project?
+          When should this task be completed by?
         </p>
         <p
-          className={`md:text-lg xl:text-xl font-extralight text-center lg:text-left lg:pl-1 ${kanit.className}`}
+          className={`md:text-lg xl:text-xl font-extralight text-center lg:text-left lg:pl-1 ${kanit.className} pb-4`}
         >
-          Please enter the user IDs of the people you would like to mentor this
-          project. Alternatively, you can leave this blank.
+          Please enter the due date for this task.
         </p>
-        <div className="flex flex-col space-y-2 mt-3 w-full">
-          {mentors.map((mentor, index) => (
-            <div key={index} className="flex items-center space-x-5 w-full">
-              <input
-                type="text"
-                className="input-field text-lg w-full"
-                value={mentor}
-                onChange={(e) =>
-                  setMentors(
-                    mentors.map((m, i) => (i === index ? e.target.value : m))
-                  )
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") setTrySubmit(true);
-                }}
-              />
-              <button
-                className="bg-red-500 hover:bg-red-600 py-2 px-3 border-none button !w-auto -mb-3"
-                onClick={() => {
-                  setError("");
-                  setMentors(mentors.filter((_, i) => i !== index));
-                }}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-        </div>
+        <ThemeProvider theme={lightTheme}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              className="w-full !hidden lg:!flex"
+              slotProps={{
+                textField: {
+                  sx: {
+                    backgroundColor: "#fff",
+                    outline: "none",
+                    borderRadius: "0.25rem",
+                  },
+                },
+              }}
+              format="DD/MM/YYYY"
+              value={rawDate}
+              onChange={(date) => setRawDate(date)}
+            />
+            <MobileDatePicker
+              className="w-full !flex lg:!hidden"
+              slotProps={{
+                textField: {
+                  sx: {
+                    backgroundColor: "#fff",
+                    outline: "none",
+                    borderRadius: "0.25rem",
+                  },
+                },
+              }}
+              format="DD/MM/YYYY"
+              value={rawDate}
+              onChange={(date) => setRawDate(date)}
+            />
+          </LocalizationProvider>
+        </ThemeProvider>
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
-          <button className="button-secondary creation-buttons" onClick={goBack}>
+          <button
+            className="button-secondary creation-buttons"
+            onClick={goBack}
+          >
             <IoIosArrowBack size={20} />
             Back
-          </button>
-          <button
-            className={`${
-              mentors.length === 10 ? "button-disabled" : "button-safe"
-            } creation-buttons`}
-            onClick={() => {
-              if (mentors.length === 10) return;
-              setMentors([...mentors, ""]);
-            }}
-          >
-            <IoAdd size={20} />
-            Add
           </button>
           <button
             className="button-primary creation-buttons"

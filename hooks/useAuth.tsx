@@ -21,6 +21,9 @@ import { ref, set } from "firebase/database";
 import { navigate } from "@/utils/actions";
 import { UserData } from "@/typings";
 
+import { useRecoilState } from "recoil";
+import { loadingAtom } from "@/atoms/loadingAtom";
+
 interface IAuth {
   user: User | null;
   signUp: (email: string, password: string, uname: string) => Promise<void>;
@@ -32,7 +35,6 @@ interface IAuth {
   verifyEmail: () => Promise<void>;
   resetPassword: () => Promise<void>;
   error: string | null;
-  loading: boolean;
 }
 
 const AuthContext = createContext<IAuth>({
@@ -46,17 +48,16 @@ const AuthContext = createContext<IAuth>({
   verifyEmail: async () => {},
   resetPassword: async () => {},
   error: null,
-  loading: false,
 });
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-const unprotectedRoutes = ["/auth"];
+export const unprotectedRoutes = ["/auth"];
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useRecoilState(loadingAtom);
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState(null);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -304,7 +305,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       verifyEmail,
       resetPassword,
       error,
-      loading,
     }),
     [user, loading]
   );

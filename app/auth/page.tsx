@@ -11,6 +11,9 @@ import Link from "next/link";
 
 import { ImSpinner2 } from "react-icons/im";
 
+import { useRecoilState } from "recoil";
+import { loadingAtom } from "@/atoms/loadingAtom";
+
 interface Inputs {
   email: string;
   uname: string;
@@ -23,7 +26,7 @@ const Auth = () => {
 
   const [login, setLogin] = useState(true);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useRecoilState(loadingAtom);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

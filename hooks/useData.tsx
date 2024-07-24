@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import useAuth from "./useAuth";
+import { usePathname } from "next/navigation";
 
 import {
   DatabaseReference,
@@ -12,7 +12,9 @@ import {
 } from "firebase/database";
 import { db } from "@/firebase";
 
+import useAuth, { unprotectedRoutes } from "./useAuth";
 import { ProjectData, UserData } from "@/typings";
+import { navigate } from "@/utils/actions";
 
 interface IDataContext {
   userData: UserData | null;
@@ -53,6 +55,17 @@ export const DataProvider = ({ children }: DataProviderProps) => {
   );
 
   const { user } = useAuth();
+  const pathname = usePathname();
+
+  const allowedRoutes = [...unprotectedRoutes, "/projects", "/account"];
+
+  useEffect(() => {
+    if (!pathname) return;
+
+    if ((!projectId || !projectData) && !allowedRoutes.includes(pathname)) {
+      navigate(`/projects?continue=${pathname}`);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (!user) return;
@@ -106,6 +119,11 @@ export const DataProvider = ({ children }: DataProviderProps) => {
       remove(projectDocRef);
       setProjectDocRef(null);
     } else {
+      if (projectData.id !== projectId) {
+        console.error("Project ID mismatch");
+        return;
+      }
+
       update(projectDocRef, projectData);
     }
   }, [projectData]);

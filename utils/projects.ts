@@ -3,7 +3,7 @@
 import { ref, get, child, set } from "firebase/database";
 import { db } from "@/firebase";
 
-import { ProjectData, UserProjectStatus } from "@/typings";
+import { ProjectData, Role, UserProjectStatus } from "@/typings";
 import { getUserProjects, setUserProjects } from "./users";
 
 export const getMembers = async (pid: string): Promise<string[]> => {
@@ -39,7 +39,7 @@ export const getMemberNames = async (pid: string): Promise<string[]> => {
 
 export const updateUserProjects = async (
   uid: string,
-  role: "owner" | "member" | "mentor",
+  role: Role,
   projectData: ProjectData
 ) => {
   try {
@@ -66,7 +66,7 @@ export const updateUserProjects = async (
   }
 };
 
-export const getProject = async (pid: string): Promise<ProjectData | null> => {
+export const getProject = async (pid: string): Promise<ProjectData> => {
   try {
     const dbRef = ref(db);
     const snapshot = await get(child(dbRef, `projects/${pid}`));
@@ -74,11 +74,11 @@ export const getProject = async (pid: string): Promise<ProjectData | null> => {
     if (snapshot.exists()) {
       return snapshot.val();
     } else {
-      return null;
+      throw new Error("Project does not exist");
     }
   } catch (error) {
     console.error(error);
-    return null;
+    throw error;
   }
 };
 

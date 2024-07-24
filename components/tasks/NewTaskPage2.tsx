@@ -29,12 +29,11 @@ const NewProjectPage2 = ({
 }: NewProjectPage2Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
   const { projectId } = useData();
-  const { user } = useAuth();
 
   useEffect(() => {
     if (!trySubmit) return;
 
-    async function attemptNext() {
+    (async () => {
       if (assignedTo.length === 0) {
         setError("Please assign this task to at least one member");
         setTrySubmit(false);
@@ -58,9 +57,7 @@ const NewProjectPage2 = ({
 
       setTrySubmit(false);
       setNext();
-    }
-
-    attemptNext();
+    })();
   }, [trySubmit]);
 
   return (
