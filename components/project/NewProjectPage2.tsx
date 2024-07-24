@@ -8,7 +8,7 @@ import { IoAdd } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-interface NewProjectPage2Props {
+interface NewTaskPage2Props {
   members: string[];
   error: string;
   setMembers: (name: string[]) => void;
@@ -17,14 +17,14 @@ interface NewProjectPage2Props {
   setNext: () => void;
 }
 
-const NewProjectPage2 = ({
+const NewTaskPage2 = ({
   members,
   error,
   setMembers,
   setError,
   goBack,
   setNext,
-}: NewProjectPage2Props) => {
+}: NewTaskPage2Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
   const { user } = useAuth();
 
@@ -151,4 +151,4 @@ const NewProjectPage2 = ({
   );
 };
 
-export default NewProjectPage2;
+export default NewTaskPage2;

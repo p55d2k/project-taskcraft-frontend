@@ -145,8 +145,9 @@ const ProjectsPage = () => {
             <h2 className="font-semibold text-xl">New project</h2>
           </Link>
 
-          {projects?.map((project) => (
+          {projects?.map((project, index) => (
             <ProjectCard
+              key={index}
               project={project}
               setClickedProjectId={setClickedProjectId}
               setTrySwitch={setTrySwitch}

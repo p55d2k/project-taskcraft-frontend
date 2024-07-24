@@ -8,7 +8,7 @@ import { IoAdd } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-interface NewProjectPage3Props {
+interface NewTaskPage3Props {
   mentors: string[];
   members: string[];
   error: string;
@@ -18,7 +18,7 @@ interface NewProjectPage3Props {
   setNext: () => void;
 }
 
-const NewProjectPage3 = ({
+const NewTaskPage3 = ({
   mentors,
   members,
   error,
@@ -26,7 +26,7 @@ const NewProjectPage3 = ({
   setError,
   goBack,
   setNext,
-}: NewProjectPage3Props) => {
+}: NewTaskPage3Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
   const { user } = useAuth();
 
@@ -153,4 +153,4 @@ const NewProjectPage3 = ({
   );
 };
 
-export default NewProjectPage3;
+export default NewTaskPage3;

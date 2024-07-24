@@ -3,19 +3,19 @@ import { IoMdClose } from "react-icons/io";
 import Image from "next/image";
 import Link from "next/link";
 
-interface NewProjectPage1Props {
+interface NewTaskPage1Props {
   name: string;
   error: string;
   setName: (name: string) => void;
   setNext: () => void;
 }
 
-const NewProjectPage1 = ({
+const NewTaskPage1 = ({
   name,
   error,
   setName,
   setNext,
-}: NewProjectPage1Props) => {
+}: NewTaskPage1Props) => {
   return (
     <div className="w-full h-screen flex flex-col lg:flex-row space-y-44 lg:space-y-0 py-12 lg:py-0 justify-between">
       <div className="w-full flex flex-col items-center lg:items-start justify-center px-16 lg:px-28 pb-24 lg:pb-0">
@@ -61,4 +61,4 @@ const NewProjectPage1 = ({
   );
 };
 
-export default NewProjectPage1;
+export default NewTaskPage1;
