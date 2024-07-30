@@ -1,16 +1,16 @@
 import { IconType } from "react-icons";
 
-interface SidebarItemProps {
+interface SidebarButtonProps {
   onClick: () => void;
   Icon: IconType;
   text: string;
 }
 
-const SidebarItem = ({
+const SidebarButton = ({
   onClick,
   Icon,
   text,
-}: SidebarItemProps): JSX.Element => {
+}: SidebarButtonProps): JSX.Element => {
   return (
     <div
       onClick={onClick}
@@ -22,4 +22,4 @@ const SidebarItem = ({
   );
 };
 
-export default SidebarItem;
+export default SidebarButton;

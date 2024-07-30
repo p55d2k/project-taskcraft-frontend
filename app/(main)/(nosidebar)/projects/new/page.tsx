@@ -4,7 +4,6 @@ import NewProjectPage1 from "@/components/project/NewProjectPage1";
 import NewProjectPage2 from "@/components/project/NewProjectPage2";
 import NewProjectPage3 from "@/components/project/NewProjectPage3";
 
-import { AiOutlineLoading } from "react-icons/ai";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
@@ -18,6 +17,7 @@ import useData from "@/hooks/useData";
 
 import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";
+import Loading from "@/components/Loading";
 
 const NewProject = () => {
   const { user } = useAuth();
@@ -104,11 +104,7 @@ const NewProject = () => {
 
   return (
     <div className="w-screen h-screen">
-      {loading && (
-        <div className="loading-parent">
-          <AiOutlineLoading className="text-white text-6xl animate-spin" />
-        </div>
-      )}
+      <Loading loading={loading} />
 
       {page === 1 ? (
         <NewProjectPage1

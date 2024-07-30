@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 27-07-2024
+
+This is a huge release, with a lot of new features and improvements. We're almost ready for a full release!
+
+### Added
+
+- Meeting functionality
+
+### Fixed
+
+- Attempting to create a project would redirect back to the projects page, but the bug has been fixed
+
+### Changed
+
+- Removed background from the sidebar
+
 ## [0.3.0] - 24-07-2024
 
 Improved the website in a lot of different ways - we're getting closer to a full release! <br/>

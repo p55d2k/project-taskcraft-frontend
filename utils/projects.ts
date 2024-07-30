@@ -82,6 +82,16 @@ export const getProject = async (pid: string): Promise<ProjectData> => {
   }
 };
 
+export const doesProjectExist = async (pid: string): Promise<boolean> => {
+  try {
+    const snapshot = await get(child(ref(db), `projects/${pid}`));
+    return snapshot.exists();
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to check if project exists");
+  }
+};
+
 export const createProject = async (
   projectData: ProjectData
 ): Promise<"success" | "failed"> => {

@@ -1,7 +1,6 @@
 import { kanit } from "@/utils/fonts";
 
 import { IoIosArrowBack } from "react-icons/io";
-import { IoAdd } from "react-icons/io5";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";

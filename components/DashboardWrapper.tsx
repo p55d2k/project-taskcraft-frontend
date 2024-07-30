@@ -5,7 +5,7 @@
 import useData from "@/hooks/useData";
 import { Role } from "@/typings";
 import { kanit } from "@/utils/fonts";
-import { AiOutlineLoading } from "react-icons/ai";
+import Loading from "./Loading";
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
@@ -24,11 +24,7 @@ const DashboardWrapper = ({
 
   return (
     <div className="w-full h-screen flex flex-col">
-      {loading && (
-        <div className="loading-parent">
-          <AiOutlineLoading className="text-white text-6xl animate-spin" />
-        </div>
-      )}
+      <Loading loading={loading} />
 
       <div className="flex-grow flex flex-col space-y-4 md:space-y-6 p-4 md:p-8 lg:px-12 xl:px-16 divide-y-2 divide-[gray]">
         <div className="flex flex-col space-y-2" id="header">

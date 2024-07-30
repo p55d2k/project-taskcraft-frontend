@@ -15,7 +15,6 @@ import useData from "@/hooks/useData";
 
 import { UserProjectStatus } from "@/typings";
 
-import { AiOutlineLoading } from "react-icons/ai";
 import { IoAdd } from "react-icons/io5";
 import toast from "react-hot-toast";
 
@@ -23,6 +22,7 @@ import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";
 
 import ProjectCard from "@/components/project/Card";
+import Loading from "@/components/Loading";
 
 const ProjectsPage = () => {
   const { user } = useAuth();
@@ -95,11 +95,7 @@ const ProjectsPage = () => {
 
   return (
     <div className="w-full h-full">
-      {loading && (
-        <div className="loading-parent">
-          <AiOutlineLoading className="text-white text-6xl animate-spin" />
-        </div>
-      )}
+      <Loading loading={loading} />
 
       <div className="h-28 w-full flex items-center justify-center">
         <Image

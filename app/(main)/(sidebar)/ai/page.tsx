@@ -26,7 +26,7 @@ const AskAI = () => {
     if (!sendPrompt) return;
     setLoading(true);
 
-    async function sendPromptToAI() {
+    (async () => {
       const response: OpenAIResponse | void = await getGPTResponseWithHistory(
         conversation,
         prompt
@@ -43,9 +43,7 @@ const AskAI = () => {
 
       setSendPrompt(false);
       setLoading(false);
-    }
-
-    sendPromptToAI();
+    })();
   }, [sendPrompt]);
 
   return (

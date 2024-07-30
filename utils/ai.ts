@@ -1,16 +1,29 @@
+"use client";
+
+import useData from "@/hooks/useData";
 import { OpenAIResponse } from "@/openai";
 import { ProjectData } from "@/typings";
 
 export const getGPTResponse = async (
   prompt: string
 ): Promise<OpenAIResponse | void> => {
-  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-    console.error("No OpenAI API key");
-    return;
-  }
+  // if (!process.env.OPENAI_API_KEY) {
+  //   console.error("No OpenAI API key");
+  //   return;
+  // } else {
+  //   const openai_key = process.env.OPENAI_API_KEY;
+  const openai_key = "sk-proj-RKYNBrg19JnkrzCmnz1wT3BlbkFJHBPrPhvP9G0olqlfXeip";
+  // }
 
   if (!prompt) {
     console.error("No prompt");
+    return;
+  }
+
+  const { projectData } = useData();
+
+  if (!projectData) {
+    console.error("No project data");
     return;
   }
 
@@ -19,7 +32,7 @@ export const getGPTResponse = async (
       method: "POST",
       headers: {
         "Content-type": "application/json",
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${openai_key}`,
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",

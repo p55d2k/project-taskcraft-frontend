@@ -61,6 +61,12 @@ const Auth = () => {
         return;
       }
 
+      if (uname.length < 4 || uname.length > 15) {
+        setError("Username must be between 4 and 15 characters.");
+        setLoading(false);
+        return;
+      }
+
       await signUp(email, password, uname).catch((error: any) => {
         setError(error.message.replace("Firebase: ", ""));
         setLoading(false);

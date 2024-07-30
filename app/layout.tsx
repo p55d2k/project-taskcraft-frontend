@@ -3,10 +3,12 @@ import { AuthProvider } from "@/hooks/useAuth";
 
 import { Toaster } from "react-hot-toast";
 
-import RecoilContextProvider from "./recoilProvider";
+import RecoilContextProvider from "@/providers/recoilProvider";
 
 import { Roboto } from "next/font/google";
 import "./globals.css";
+
+import "@stream-io/video-react-sdk/dist/css/styles.css";
 
 const roboto = Roboto({
   subsets: ["latin"],

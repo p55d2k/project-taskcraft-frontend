@@ -18,6 +18,7 @@ import {
 } from "firebase/auth";
 import { ref, set } from "firebase/database";
 
+import { noUserRoutes } from "@/constants/routes";
 import { navigate } from "@/utils/actions";
 import { UserData } from "@/typings";
 
@@ -54,8 +55,6 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-export const unprotectedRoutes = ["/auth"];
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useRecoilState(loadingAtom);
   const [user, setUser] = useState<User | null>(null);
@@ -83,7 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         let path_allowed = false;
-        for (const path of unprotectedRoutes) {
+        for (const path of noUserRoutes) {
           if (pathname.startsWith(path)) {
             path_allowed = true;
             break;

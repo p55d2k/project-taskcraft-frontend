@@ -3,13 +3,11 @@
 import useData from "@/hooks/useData";
 import useAuth from "@/hooks/useAuth";
 
-import { getTask, getTasksForUserInProject } from "@/utils/tasks";
+import { getTask } from "@/utils/tasks";
 import { kanit } from "@/utils/fonts";
-import { getUserRoleInProject, nameFromId } from "@/utils/users";
+import { nameFromId } from "@/utils/users";
 
-import { AiOutlineLoading } from "react-icons/ai";
-
-import TaskCard from "@/components/tasks/Card";
+import Loading from "@/components/Loading";
 
 import { Role, TaskData } from "@/typings";
 
@@ -23,7 +21,7 @@ import toast from "react-hot-toast";
 import { navigate } from "@/utils/actions";
 
 const TaskViewPage = ({ params }: { params: { id: string } }) => {
-  const { projectData, projectId } = useData();
+  const { projectId } = useData();
 
   const { user } = useAuth();
 
@@ -65,11 +63,7 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="w-full h-full flex flex-col">
-      {loading && (
-        <div className="loading-parent">
-          <AiOutlineLoading className="text-white text-6xl animate-spin" />
-        </div>
-      )}
+      <Loading loading={loading} />
 
       <div className="flex flex-col space-y-4 md:space-y-6 p-4 md:p-8 lg:px-12 xl:px-16 divide-y-2 divide-[gray]">
         <h1

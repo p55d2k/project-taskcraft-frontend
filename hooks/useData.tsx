@@ -12,9 +12,10 @@ import {
 } from "firebase/database";
 import { db } from "@/firebase";
 
-import useAuth, { unprotectedRoutes } from "./useAuth";
+import useAuth from "./useAuth";
 import { ProjectData, UserData } from "@/typings";
 import { navigate } from "@/utils/actions";
+import { noProjectRoutes } from "@/constants/routes";
 
 interface IDataContext {
   userData: UserData | null;
@@ -57,12 +58,23 @@ export const DataProvider = ({ children }: DataProviderProps) => {
   const { user } = useAuth();
   const pathname = usePathname();
 
-  const allowedRoutes = [...unprotectedRoutes, "/projects", "/account"];
-
   useEffect(() => {
     if (!pathname) return;
 
-    if ((!projectId || !projectData) && !allowedRoutes.includes(pathname)) {
+    let path_allowed = false;
+    for (const path of noProjectRoutes) {
+      if (pathname.startsWith(path)) {
+        path_allowed = true;
+        break;
+      }
+    }
+
+    if (
+      (!projectId || !projectData) &&
+      !path_allowed &&
+      user &&
+      pathname !== "/"
+    ) {
       navigate(`/projects?continue=${pathname}`);
     }
   }, [pathname]);

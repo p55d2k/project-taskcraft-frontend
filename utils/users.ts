@@ -180,3 +180,28 @@ export const isUserInProject = async (
     throw new Error("Failed to check if user is in project");
   }
 };
+
+export const isUserPartOfProject = async (
+  uid: string,
+  projectId: string
+): Promise<boolean> => {
+  try {
+    const dbRef = ref(db);
+    const snapshot = await get(child(dbRef, `users/${uid}/projects`));
+
+    if (snapshot.exists()) {
+      let inProject = false;
+
+      snapshot.val().forEach((project: UserProjectStatus) => {
+        if (project.id === projectId) inProject = true;
+      });
+
+      return inProject;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to check if user is part of project");
+  }
+};

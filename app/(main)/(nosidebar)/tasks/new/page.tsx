@@ -3,8 +3,8 @@
 import NewTaskPage1 from "@/components/tasks/NewTaskPage1";
 import NewTaskPage2 from "@/components/tasks/NewTaskPage2";
 import NewTaskPage3 from "@/components/tasks/NewTaskPage3";
+import Loading from "@/components/Loading";
 
-import { AiOutlineLoading } from "react-icons/ai";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
@@ -114,11 +114,7 @@ const NewTask = () => {
 
   return (
     <div className="w-screen h-screen">
-      {loading && (
-        <div className="loading-parent">
-          <AiOutlineLoading className="text-white text-6xl animate-spin" />
-        </div>
-      )}
+      <Loading loading={loading} />
 
       {page === 1 ? (
         <NewTaskPage1

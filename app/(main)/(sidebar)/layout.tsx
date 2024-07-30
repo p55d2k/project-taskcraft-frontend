@@ -1,5 +1,5 @@
-import MobileSidebar from "@/components/MobileSidebar";
-import Sidebar from "@/components/Sidebar";
+import MobileSidebar from "@/components/sidebar/MobileSidebar";
+import Sidebar from "@/components/sidebar/Sidebar";
 
 import type { Metadata } from "next";
 
