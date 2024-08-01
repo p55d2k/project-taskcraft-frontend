@@ -44,7 +44,9 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
           } else {
             setTaskData(fetchedTaskData);
 
-            setAssignedBy(await nameFromId(fetchedTaskData.assignedBy));
+            if (fetchedTaskData.assignedBy === "AI") setAssignedBy("AI");
+            else setAssignedBy(await nameFromId(fetchedTaskData.assignedBy));
+
             fetchedTaskData.assignedTo.forEach(async (id) => {
               const name = await nameFromId(id);
               setAssignedTo((prev) => [...(prev || []), name]);
@@ -53,6 +55,8 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
         } catch (error) {
           console.error("Failed to fetch data:", error);
           toast.error("Something went wrong. Please try again later.");
+
+          navigate("/tasks");
           throw error;
         } finally {
           setLoading(false);

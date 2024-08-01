@@ -1,29 +1,23 @@
 "use client";
 
-import useData from "@/hooks/useData";
 import { OpenAIResponse } from "@/openai";
-import { ProjectData } from "@/typings";
+import { ProjectData, TaskData } from "@/typings";
+import { generateUniqueId } from "./unique";
 
 export const getGPTResponse = async (
-  prompt: string
+  prompt: string,
+  projectData: ProjectData,
+  userID: string
 ): Promise<OpenAIResponse | void> => {
-  // if (!process.env.OPENAI_API_KEY) {
-  //   console.error("No OpenAI API key");
-  //   return;
-  // } else {
-  //   const openai_key = process.env.OPENAI_API_KEY;
-  const openai_key = "sk-proj-RKYNBrg19JnkrzCmnz1wT3BlbkFJHBPrPhvP9G0olqlfXeip";
-  // }
-
-  if (!prompt) {
-    console.error("No prompt");
+  if (!process.env.openaiKey) {
+    console.error("No OpenAI API key");
     return;
   }
 
-  const { projectData } = useData();
+  const openai_key = process.env.openaiKey;
 
-  if (!projectData) {
-    console.error("No project data");
+  if (!prompt) {
+    console.error("No prompt");
     return;
   }
 
@@ -39,8 +33,11 @@ export const getGPTResponse = async (
         messages: [
           {
             role: "system",
-            content:
-              'You are a helpful assistant who reads the input of the user and answer the user in a brief but clear and concise way. However, you should not respond with "AI: " at the beginning of your response.',
+            content: `You are a helpful assistant who reads the input of the user and answers the user in a brief but clear and concise way. However, you should not respond with "AI: " at the beginning of your response. This is the project data you are working on: ${JSON.stringify(
+              projectData
+            )} Avoid repeating the same information in your response. Do not talk about anything outside the scope of the project data. Do not provide any personal information. If you want to create a task, you can do so by typing "Create a task" and then providing the task details, with the format of "Create a task {
+            description,priority,assignedTo,dueDate
+            }. description should be a brief description of the task, priority should be "low", "medium", or "high", assignedTo should be the user ID of the person you want to assign the task to (you can assign it to the current user ID, and make sure you only assign it to one person), and dueDate should be the due date of the task in DD/MM/YYYY. For example, returning: 'Create a task {description: "Complete the project documentation", priority: "high", assignedTo: "user123", dueDate: "15/10/2023"}' would work. Make sure that the data should be valid when I run JSON.parse on it. The current date is ${new Date().toLocaleDateString()}. The current user ID is ${userID}.`,
           },
           {
             role: "user",
@@ -66,16 +63,62 @@ export const getGPTResponse = async (
   }
 };
 
+export const extractTaskFromGPTResponse = (
+  response: OpenAIResponse,
+  projectID: string
+): TaskData | null => {
+  if (!response || !response.choices || response.choices.length === 0) {
+    console.log("No response or unexpected response structure");
+    return null;
+  }
+
+  const messages = response.choices[0].message.content;
+
+  const taskRegex = /Create a task {([^}]*)}/;
+  const taskMatch = messages.match(taskRegex);
+
+  if (!taskMatch || taskMatch.length < 2) {
+    console.log("No task match found in response:", messages);
+    return null;
+  }
+
+  console.log("Task match:", taskMatch[1]);
+
+  const correctedTaskData = taskMatch[1].replace(/(\w+):/g, '"$1":');
+
+  try {
+    const rawReturnedData = JSON.parse("{" + correctedTaskData + "}");
+    const taskData: TaskData = {
+      ...rawReturnedData,
+      assignedTo: [rawReturnedData.assignedTo] || [],
+      dueDate: new Date(rawReturnedData.dueDate + " 00:00").getTime(),
+      project: projectID,
+      id: generateUniqueId(),
+      status: "progress",
+      assignedBy: "AI",
+      createdAt: Date.now(),
+      completedAt: 0,
+    };
+
+    return taskData;
+  } catch (error) {
+    console.error("Error parsing task data:", error);
+    return null;
+  }
+};
+
 export const getGPTResponseWithHistory = async (
-  conversation: string[],
-  prompt: string
+  conversation: (string | TaskData)[],
+  prompt: string,
+  projectData: ProjectData,
+  userID: string
 ): Promise<OpenAIResponse | void> => {
   if (!prompt) {
     console.error("No prompt");
     return;
   }
 
-  if (prompt.length > 100) {
+  if (prompt.length > 1024) {
     console.error("Prompt is too long");
     return;
   }
@@ -89,12 +132,20 @@ export const getGPTResponseWithHistory = async (
     }\n`;
   }
 
-  return getGPTResponse(combinedPrompt + `User: ${prompt}`);
+  return getGPTResponse(
+    combinedPrompt + `User: ${prompt}`,
+    projectData,
+    userID
+  );
 };
 export const projectSummary = async (
-  projectstatus: ProjectData
+  projectstatus: ProjectData,
+
+  userID: string
 ): Promise<OpenAIResponse | void> => {
   await getGPTResponse(
-    `Generate a summary for project ${projectstatus.name} with id ${projectstatus.id}`
+    `Generate a summary for this project`,
+    projectstatus,
+    userID
   );
 };

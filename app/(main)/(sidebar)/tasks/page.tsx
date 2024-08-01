@@ -3,7 +3,10 @@
 import useData from "@/hooks/useData";
 import useAuth from "@/hooks/useAuth";
 
-import { getTasksForUserInProject } from "@/utils/tasks";
+import {
+  getCompletedTasksForUserInProject,
+  getTasksForUserInProject,
+} from "@/utils/tasks";
 import { kanit } from "@/utils/fonts";
 import { getUserRoleInProject } from "@/utils/users";
 
@@ -27,7 +30,11 @@ const TasksViewPage = () => {
 
   const [loading, setLoading] = useRecoilState(loadingAtom);
   const [role, setRole] = useState<Role | undefined>(undefined);
+
   const [tasksAssignedToUser, setTasksAssignedToUser] = useState<TaskData[]>(
+    []
+  );
+  const [tasksCompletedByUser, setTasksCompletedByUser] = useState<TaskData[]>(
     []
   );
 
@@ -42,9 +49,14 @@ const TasksViewPage = () => {
             user.uid,
             projectId
           );
+          const fetchedCompletedTasks = await getCompletedTasksForUserInProject(
+            user.uid,
+            projectId
+          );
 
           setRole(fetchedRole);
           setTasksAssignedToUser(fetchedTasks);
+          setTasksCompletedByUser(fetchedCompletedTasks);
         } catch (error) {
           console.error("Failed to fetch data:", error);
           toast.error("Something went wrong. Please try again later.");
@@ -59,7 +71,6 @@ const TasksViewPage = () => {
   return (
     <div className="w-full h-full flex flex-col">
       <Loading loading={loading} />
-
 
       <div className="flex flex-col space-y-4 md:space-y-6 p-4 md:p-8 lg:px-12 xl:px-16 divide-y-2 divide-[gray]">
         <h1
@@ -107,6 +118,24 @@ const TasksViewPage = () => {
               <div className="flex flex-col items-center justify-center h-60 md:h-72 lg:h-96">
                 <p className="text-[gray] text-lg">
                   You have no tasks assigned to you.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col p-4 md:px-6 rounded space-y-2 bg-[#141414] divide-y-2 divide-[gray]">
+            <h2 className="text-xl md:text-2xl">Tasks You Completed</h2>
+
+            {tasksCompletedByUser?.length ? (
+              <div className="flex flex-col space-y-2 pt-2">
+                {tasksCompletedByUser.map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-60 md:h-72 lg:h-96">
+                <p className="text-[gray] text-lg">
+                  You have not completed any tasks yet...
                 </p>
               </div>
             )}

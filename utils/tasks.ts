@@ -38,6 +38,39 @@ export const getTasksForUserInProject = async (
   }
 };
 
+export const getCompletedTasksForUserInProject = async (
+  uid: string,
+  pid: string
+): Promise<TaskData[]> => {
+  const dbRef = ref(db);
+  let tasks: TaskData[] = [];
+
+  try {
+    const snapshot = await get(child(dbRef, `projects/${pid}/tasks_completed`));
+
+    if (snapshot.exists()) {
+      const projectTasks: string[] = snapshot.val();
+
+      const taskPromises = projectTasks.map(async (taskId) => {
+        const taskData = await getTask(taskId);
+
+        if (taskData.assignedTo.includes(uid)) {
+          return taskData;
+        }
+        return null;
+      });
+
+      const resolvedTasks = await Promise.all(taskPromises);
+      tasks = resolvedTasks.filter((task): task is TaskData => task !== null);
+    }
+
+    return tasks;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const getTask = async (tid: string): Promise<TaskData> => {
   const dbRef = ref(db);
 

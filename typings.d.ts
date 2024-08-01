@@ -4,7 +4,7 @@ export interface UserProjectStatus {
   role: Role;
 }
 
-export type Role = "owner" | "member" | "mentor";
+export type Role = "owner" | "member" | "mentor" | "admin";
 
 export interface TaskData {
   id: string; // tid
@@ -38,10 +38,17 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export type ProjectStatus =
+  | "active"
+  | "completed"
+  | "archived"
+  | "paused"
+  | "deleted";
+
 export interface ProjectData {
   id: string; // pid
   name: string;
-  status: "active" | "completed" | "archived" | "paused" | "deleted";
+  status: ProjectStatus;
 
   createdAt: number;
 
@@ -55,9 +62,3 @@ export interface ProjectData {
   tasks_completed: string[]; // tid
   tasks_overdue: string[]; // tid
 }
-
-/*
-- users -> uid -> { email, name, ips, projects, tasks }
-- projects -> pid -> { name, description, owner, members, mentors, tasks_progress, tasks_completed }
-- tasks -> tid -> { description, status, assignedTo, assignedBy, createdAt, dueDate }
-*/

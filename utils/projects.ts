@@ -120,6 +120,32 @@ export const createProject = async (
   }
 };
 
+export const addMemberToProject = async (
+  pid: string,
+  uid: string
+): Promise<void> => {
+  try {
+    const projectData = await getProject(pid);
+
+    if (!projectData) {
+      throw new Error("Project does not exist");
+    }
+
+    if (projectData.members.includes(uid)) {
+      throw new Error("User is already a member of the project");
+    }
+
+    await set(ref(db, `projects/${pid}/members`), [
+      ...projectData.members,
+      uid,
+    ]);
+    await updateUserProjects(uid, "member", projectData);
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to add member to project");
+  }
+};
+
 export const updateProject = (
   projectData: ProjectData
 ): "success" | "failed" => {

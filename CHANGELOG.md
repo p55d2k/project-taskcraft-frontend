@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 01-08-2024
+
+Not much has changed in this release.
+
+### Added
+
+- The ability for AI to create tasks
+- Users can request to join a project with the project ID
+- Project Settings page
+
+### Changed
+
+- The projects page now will not show the sidebar
+
 ## [0.4.0] - 27-07-2024
 
 This is a huge release, with a lot of new features and improvements. We're almost ready for a full release!

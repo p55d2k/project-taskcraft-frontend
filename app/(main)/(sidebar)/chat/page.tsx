@@ -57,7 +57,7 @@ const ChatPage = () => {
   return (
     <DashboardWrapper loading={loading} pageName="Chat">
       <div className="flex flex-col space-y-4 pt-4 md:pt-6 flex-grow">
-        <div className="flex-grow flex flex-col space-y-4 overflow-y-auto">
+        <div className="flex-1 flex h-full flex-col-reverse space-y-4 overflow-y-auto">
           {conversation.length === 0 && (
             <div className="flex flex-col space-y-3 items-center h-full justify-center text-center">
               <IoIosChatboxes className="text-6xl" />
@@ -68,7 +68,7 @@ const ChatPage = () => {
             </div>
           )}
 
-          {conversation.map((message, index) => {
+          {conversation.toReversed().map((message, index) => {
             const isUser = message.id === user?.uid;
 
             return (

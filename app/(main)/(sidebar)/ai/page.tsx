@@ -1,6 +1,11 @@
 "use client";
 
-import { getGPTResponseWithHistory } from "@/utils/ai";
+import {
+  extractTaskFromGPTResponse,
+  getGPTResponseWithHistory,
+} from "@/utils/ai";
+import useData from "@/hooks/useData";
+import useAuth from "@/hooks/useAuth";
 
 import DashboardWrapper from "@/components/DashboardWrapper";
 
@@ -14,31 +19,52 @@ import { OpenAIResponse } from "@/openai";
 import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";
 
+import { TaskData } from "@/typings";
+import AITaskDataCard from "@/components/tasks/AITaskDataCard";
+import { createTask } from "@/utils/tasks";
+
 const AskAI = () => {
   const [prompt, setPrompt] = useState<string>("");
   const [sendPrompt, setSendPrompt] = useState<boolean>(false);
 
   const [loading, setLoading] = useRecoilState(loadingAtom);
 
-  const [conversation, setConversation] = useState<string[]>([]);
+  const [conversation, setConversation] = useState<(string | TaskData)[]>([]);
+
+  const { projectData, projectId } = useData();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!sendPrompt) return;
+    if (!sendPrompt || !projectData || !user) return;
     setLoading(true);
 
     (async () => {
       const response: OpenAIResponse | void = await getGPTResponseWithHistory(
         conversation,
-        prompt
+        prompt,
+        projectData,
+        user.uid
       );
+
       if (!response) {
         toast.error("Error sending prompt to AI");
         setLoading(false);
         return;
       }
 
-      const messages = response.choices[0].message.content;
-      setConversation((prev) => [...prev, prompt, messages]);
+      const task = extractTaskFromGPTResponse(response, projectData.id);
+
+      if (!task)
+        setConversation((prev) => [
+          ...prev,
+          prompt,
+          response.choices[0].message.content,
+        ]);
+      else {
+        setConversation((prev) => [...prev, prompt, task]);
+        await createTask(task, projectId);
+      }
+
       setPrompt("");
 
       setSendPrompt(false);
@@ -49,7 +75,7 @@ const AskAI = () => {
   return (
     <DashboardWrapper loading={loading} pageName="Ask AI">
       <div className="flex flex-col space-y-4 pt-4 md:pt-6 flex-grow">
-        <div className="flex-grow flex flex-col space-y-4 overflow-y-auto">
+        <div className="flex-1 flex h-full flex-col-reverse space-y-4 overflow-y-auto">
           {conversation.length === 0 && (
             <div className="flex flex-col space-y-3 items-center h-full justify-center text-center">
               <FaBrain className="text-6xl" />
@@ -60,31 +86,48 @@ const AskAI = () => {
             </div>
           )}
 
-          {conversation.map((message, index) => (
-            <div
-              key={index}
-              className={`flex flex-col space-y-1 ${
-                index % 2 === 0
-                  ? "items-end text-right"
-                  : "items-start text-left"
-              }`}
-            >
-              <p
-                className={`text-sm ${
-                  index % 2 === 0 ? "text-gray-500" : "text-gray-200"
-                }`}
-              >
-                {index % 2 === 0 ? "You" : "TaskCraft AI"}
-              </p>
-              <p
-                className={`text-lg ${
-                  index % 2 === 0 ? "text-gray-400" : "text-white"
-                }`}
-              >
-                {message}
-              </p>
-            </div>
-          ))}
+          {conversation.toReversed().map((message, index) => {
+            if (typeof message === "string") {
+              return (
+                <div
+                  key={index}
+                  className={`flex flex-col space-y-1 ${
+                    index % 2 === 1
+                      ? "items-end text-right"
+                      : "items-start text-left lg:max-w-[50vw]"
+                  }`}
+                >
+                  <p
+                    className={`text-sm ${
+                      index % 2 === 1 ? "text-gray-500" : "text-gray-200"
+                    }`}
+                  >
+                    {index % 2 === 1 ? "You" : "TaskCraft AI"}
+                  </p>
+                  <p
+                    className={`text-lg ${
+                      index % 2 === 1 ? "text-gray-400" : "text-white"
+                    }`}
+                  >
+                    {message}
+                  </p>
+                </div>
+              );
+            } else {
+              return (
+                <div
+                  key={index}
+                  className="flex flex-col space-y-1 items-start text-left"
+                >
+                  <p className="text-sm text-gray-200">
+                    {index % 2 === 1 ? "You" : "TaskCraft AI"}
+                  </p>
+
+                  <AITaskDataCard taskData={message as TaskData} />
+                </div>
+              );
+            }
+          })}
         </div>
 
         <div className="w-full flex-none flex flex-row items-center justify-end pb-5 md:pb-8 lg:pb-10">

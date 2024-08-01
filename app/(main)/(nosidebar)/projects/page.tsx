@@ -15,6 +15,8 @@ import useData from "@/hooks/useData";
 
 import { UserProjectStatus } from "@/typings";
 
+import { GoGitPullRequest } from "react-icons/go";
+import { MdAccountCircle } from "react-icons/md";
 import { IoAdd } from "react-icons/io5";
 import toast from "react-hot-toast";
 
@@ -97,7 +99,7 @@ const ProjectsPage = () => {
     <div className="w-full h-full">
       <Loading loading={loading} />
 
-      <div className="h-28 w-full flex items-center justify-center">
+      <div className="h-60 lg:h-36 w-full flex items-center justify-center">
         <Image
           unoptimized
           src="/imgs/project-bg.png"
@@ -107,7 +109,7 @@ const ProjectsPage = () => {
           className="absolute top-0 left-0 w-full h-60 lg:h-36 -z-10 object-cover opacity-40"
         />
         <h1
-          className={`${kanit.className} font-semibold text-center text-3xl md:text-4xl lg:text-5xl -mt-8`}
+          className={`${kanit.className} font-semibold text-center text-4xl lg:text-5xl`}
         >
           Projects
         </h1>
@@ -132,13 +134,27 @@ const ProjectsPage = () => {
           </button>
         </div>
 
-        <div className="w-full h-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="w-full h-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           <Link
             href="/projects/new"
-            className="project-card bg-slate-900 flex-row"
+            className="project-card bg-blue-1 flex-row"
           >
             <IoAdd size={26} />
             <h2 className="font-semibold text-xl">New project</h2>
+          </Link>
+          <Link
+            href="/projects/request"
+            className="project-card bg-slate-900 flex-row gap-2"
+          >
+            <GoGitPullRequest size={24} />
+            <h2 className="font-semibold text-xl">Join project</h2>
+          </Link>
+          <Link
+            href="/account"
+            className="project-card bg-dark-1 flex-row gap-1"
+          >
+            <MdAccountCircle size={26} />
+            <h2 className="font-semibold text-xl">Account</h2>
           </Link>
 
           {projects?.map((project, index) => (

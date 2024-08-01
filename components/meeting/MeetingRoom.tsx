@@ -1,11 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 import {
   CallControls,
   CallingState,
-  CallParticipantsList,
   CallStatsButton,
   PaginatedGridLayout,
   SpeakerLayout,
@@ -23,8 +20,7 @@ import Loading from "@/components/Loading";
 
 import { useState } from "react";
 import { LayoutList, Users } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import EndCallButton from "./EndCallButton";
+import { useRouter } from "next/navigation";
 
 type CallLayoutType =
   | "speaker-left"
@@ -42,11 +38,7 @@ const layoutMapping: { [key: string]: CallLayoutType } = {
 };
 
 const MeetingRoom = () => {
-  const searchParams = useSearchParams();
-  const isPersonalRoom = searchParams.get("personal");
-
   const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
-  const [showParticipants, setShowParticipants] = useState(false);
 
   const { useCallCallingState } = useCallStateHooks();
   const callingState = useCallCallingState();
@@ -76,14 +68,6 @@ const MeetingRoom = () => {
         <div className="flex size-full items-center max-w-[1000px]">
           <CallLayout />
         </div>
-
-        <div
-          className={cn("h-[calc(100vh-86px)] hidden ml-2", {
-            "show-block": showParticipants,
-          })}
-        >
-          <CallParticipantsList onClose={() => setShowParticipants(false)} />
-        </div>
       </div>
 
       <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap">
@@ -105,21 +89,16 @@ const MeetingRoom = () => {
                 >
                   {item}
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="border-dark-1" />
+
+                {index !== Object.keys(layoutMapping).length - 1 && (
+                  <DropdownMenuSeparator className="border-dark-1" />
+                )}
               </div>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
         <CallStatsButton />
-
-        <button onClick={() => setShowParticipants((prev) => !prev)}>
-          <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
-            <Users size={20} className="text-white" />
-          </div>
-        </button>
-
-        {!isPersonalRoom && <EndCallButton />}
       </div>
     </section>
   );

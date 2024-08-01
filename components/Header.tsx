@@ -11,8 +11,8 @@ import useData from "@/hooks/useData";
 import { navigate } from "@/utils/actions";
 
 const Header = () => {
-  const { user, logout } = useAuth();
-  const { userData } = useData();
+  const { user } = useAuth();
+  const { userData, projectData } = useData();
 
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {
@@ -60,18 +60,16 @@ const Header = () => {
           </div>
 
           <div className="hidden md:flex flex-row items-center justify-center space-x-2 md:space-x-4">
-            {user && (
-              <Link
-                href="/dashboard"
-                className={`header-link ${
-                  pathname === "/dashboard" && "header-current-page"
-                }`}
-              >
-                Dashboard
-              </Link>
-            )}
-            {/* <Link href="/about">About</Link> */}
-            {/* <Link href="/feedback" target="_blank">Feedback</Link> */}
+            {user &&
+              (projectData ? (
+                <Link href="/dashboard" className="header-link">
+                  Dashboard
+                </Link>
+              ) : (
+                <Link href="/projects" className="header-link">
+                  Projects
+                </Link>
+              ))}
           </div>
         </div>
         {user ? (

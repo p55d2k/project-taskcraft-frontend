@@ -98,7 +98,7 @@ const AccountPage = () => {
             <label className="inline-block w-full">
               <span className="font-semibold">Username</span>
               <Input
-                className="text-lg cursor-pointer"
+                className="text-lg"
                 type="text"
                 value={accountName}
                 onChange={(e) => setAccountName(e.target.value)}

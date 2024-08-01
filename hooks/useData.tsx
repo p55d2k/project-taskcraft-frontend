@@ -16,6 +16,7 @@ import useAuth from "./useAuth";
 import { ProjectData, UserData } from "@/typings";
 import { navigate } from "@/utils/actions";
 import { noProjectRoutes } from "@/constants/routes";
+import toast from "react-hot-toast";
 
 interface IDataContext {
   userData: UserData | null;
@@ -75,6 +76,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
       user &&
       pathname !== "/"
     ) {
+      toast.error("Please select a project to continue");
       navigate(`/projects?continue=${pathname}`);
     }
   }, [pathname]);

@@ -5,14 +5,14 @@ import { Toaster } from "react-hot-toast";
 
 import RecoilContextProvider from "@/providers/recoilProvider";
 
-import { Roboto } from "next/font/google";
+import { Lato } from "next/font/google";
 import "./globals.css";
 
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 
-const roboto = Roboto({
+const lato = Lato({
   subsets: ["latin"],
-  weight: ["100", "300", "400", "500", "700"],
+  weight: ["100", "300", "400", "900", "700"],
 });
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={roboto.className}>
+      <body className={lato.className}>
         <RecoilContextProvider>
           <AuthProvider>
             <DataProvider>
