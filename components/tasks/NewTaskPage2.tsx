@@ -1,5 +1,5 @@
 import { kanit } from "@/utils/fonts";
-import { isUserInProject } from "@/utils/users";
+import { isOwner, isUserInProject } from "@/utils/users";
 
 import useAuth from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
@@ -10,7 +10,7 @@ import { IoAdd } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-interface NewProjectPage2Props {
+interface NewTaskPage2Props {
   assignedTo: string[];
   setAssignedTo: (assignedTo: string[]) => void;
   error: string;
@@ -19,14 +19,14 @@ interface NewProjectPage2Props {
   setNext: () => void;
 }
 
-const NewProjectPage2 = ({
+const NewTaskPage2 = ({
   assignedTo,
   setAssignedTo,
   error,
   setError,
   goBack,
   setNext,
-}: NewProjectPage2Props) => {
+}: NewTaskPage2Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
   const { projectId } = useData();
 
@@ -47,7 +47,9 @@ const NewProjectPage2 = ({
           return;
         }
 
-        const exists = await isUserInProject(assignee, projectId);
+        const exists =
+          (await isUserInProject(assignee, projectId)) ||
+          (await isOwner(assignee, projectId));
         if (!exists) {
           setError(`User with ID ${assignee} is not in the project`);
           setTrySubmit(false);
@@ -107,7 +109,7 @@ const NewProjectPage2 = ({
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
           <button
-            className="button-secondary creation-buttons"
+            className="button-danger creation-buttons"
             onClick={goBack}
           >
             <IoIosArrowBack size={20} />
@@ -145,4 +147,4 @@ const NewProjectPage2 = ({
   );
 };
 
-export default NewProjectPage2;
+export default NewTaskPage2;

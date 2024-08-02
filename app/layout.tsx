@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 import RecoilContextProvider from "@/providers/recoilProvider";
 
 import { Lato } from "next/font/google";
-import "./globals.css";
+import "@/styles/globals.css";
 
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 

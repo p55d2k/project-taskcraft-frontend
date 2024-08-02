@@ -64,7 +64,7 @@ const NewTaskPage1 = ({
             Medium
           </button>
           <button
-            className={`button-secondary w-full ${
+            className={`button-danger w-full ${
               priority === "high" ? "bg-red-500 text-white" : "opacity-60"
             }`}
             onClick={() => setPriority("high")}
@@ -75,7 +75,7 @@ const NewTaskPage1 = ({
 
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
-          <Link className="button-secondary creation-buttons" href="/tasks">
+          <Link className="button-danger creation-buttons" href="/tasks">
             <IoMdClose size={20} />
             Cancel
           </Link>

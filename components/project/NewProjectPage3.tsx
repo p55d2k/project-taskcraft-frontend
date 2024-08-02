@@ -115,7 +115,7 @@ const NewTaskPage3 = ({
         </div>
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
-          <button className="button-secondary creation-buttons" onClick={goBack}>
+          <button className="button-danger creation-buttons" onClick={goBack}>
             <IoIosArrowBack size={20} />
             Back
           </button>

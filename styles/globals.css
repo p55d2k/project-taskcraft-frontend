@@ -41,7 +41,7 @@
     @apply text-blue-500 border-blue-500 hover:bg-blue-500 button;
   }
 
-  .button-secondary {
+  .button-danger {
     @apply text-red-500 border-red-500 hover:bg-red-500 button;
   }
 

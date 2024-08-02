@@ -120,6 +120,18 @@ export const DataProvider = ({ children }: DataProviderProps) => {
     const unsubscribe = onValue(currentProjectDocRef, (snapshot) => {
       const data = snapshot.val();
       setProjectDataLocally(data);
+
+      if (
+        !data?.members?.includes(userId) &&
+        !data?.mentors?.includes(userId) &&
+        data?.owner !== userId
+      ) {
+        setProjectDataLocally(null);
+        setProjectId("");
+
+        toast.error("You are not a part of this project");
+        navigate("/projects");
+      }
     });
 
     // cleanup function to unsubscribe

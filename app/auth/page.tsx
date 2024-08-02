@@ -48,7 +48,7 @@ const Auth = () => {
     if (login) {
       await signIn(email, password)
         .then(() => {
-          navigate("/dashboard");
+          navigate("/projects");
         })
         .catch((error: any) => {
           setError(error.message.replace("Firebase: ", ""));

@@ -109,7 +109,12 @@ const AskAI = () => {
                       index % 2 === 1 ? "text-gray-400" : "text-white"
                     }`}
                   >
-                    {message}
+                    {message.split("\n").map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
                   </p>
                 </div>
               );

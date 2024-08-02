@@ -3,13 +3,14 @@
 import useData from "@/hooks/useData";
 import useAuth from "@/hooks/useAuth";
 
-import { getTask } from "@/utils/tasks";
+import { deleteTask, getTask, markTaskAsCompleted } from "@/utils/tasks";
 import { kanit } from "@/utils/fonts";
+import { navigate } from "@/utils/actions";
 import { nameFromId } from "@/utils/users";
 
 import Loading from "@/components/Loading";
 
-import { Role, TaskData } from "@/typings";
+import { TaskData } from "@/typings";
 
 import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";
@@ -18,7 +19,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import toast from "react-hot-toast";
-import { navigate } from "@/utils/actions";
 
 const TaskViewPage = ({ params }: { params: { id: string } }) => {
   const { projectId } = useData();
@@ -30,6 +30,11 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
 
   const [assignedBy, setAssignedBy] = useState<string | null>(null);
   const [assignedTo, setAssignedTo] = useState<string[] | null>(null);
+
+  const [isAssignedToUser, setIsAssignedToUser] = useState<boolean>(false);
+  const [isAssignedByUser, setIsAssignedByUser] = useState<boolean>(false);
+
+  const [reloadTask, setReloadTask] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -51,6 +56,14 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
               const name = await nameFromId(id);
               setAssignedTo((prev) => [...(prev || []), name]);
             });
+
+            if (fetchedTaskData.assignedTo.includes(user.uid)) {
+              setIsAssignedToUser(true);
+            }
+
+            if (fetchedTaskData.assignedBy === user.uid) {
+              setIsAssignedByUser(true);
+            }
           }
         } catch (error) {
           console.error("Failed to fetch data:", error);
@@ -59,11 +72,12 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
           navigate("/tasks");
           throw error;
         } finally {
+          setReloadTask(false);
           setLoading(false);
         }
       }
     })();
-  }, [projectId, params, user]);
+  }, [projectId, params, user, reloadTask]);
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -79,12 +93,6 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
         </h1>
 
         <div className="w-full h-full flex flex-col space-y-4 pt-4 md:pt-6">
-          {taskData?.assignedBy !== user?.uid && (
-            <p className="lg:text-lg">
-              This task was assigned to you by {assignedBy}.
-            </p>
-          )}
-
           <div className="flex flex-col p-4 md:px-6 rounded space-y-2 bg-[#141414] divide-y-2 divide-[gray]">
             <h2 className="text-xl md:text-2xl">Task Details</h2>
 
@@ -156,44 +164,92 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
                 </span>
               </p>
 
-              {taskData?.assignedTo.length! > 0 &&
-                taskData?.assignedBy !== user?.uid && (
-                  <p className="md:text-lg">
-                    Assigned to:{" "}
-                    {taskData?.assignedTo.map((id, index) => (
-                      <Link
-                        key={index}
-                        href={`/users/${id}`}
-                        className="font-semibold"
-                      >
-                        {assignedTo?.[index]}
-                      </Link>
-                    ))}
-                  </p>
-                )}
+              {taskData?.assignedTo.length! > 0 && (
+                <p className="md:text-lg">
+                  Assigned to:{" "}
+                  {taskData?.assignedTo.map((id, index) => (
+                    <Link
+                      key={index}
+                      href={`/users/${id}`}
+                      className="font-semibold"
+                    >
+                      {assignedTo?.[index]}
+                    </Link>
+                  ))}
+                </p>
+              )}
 
-              <p className="pt-2">
-                {taskData?.assignedBy === user?.uid ? (
-                  <>
-                    {"You assigned this task to "}
-                    {assignedTo?.map((name, index) => (
-                      <span key={index}>
-                        {name}
-                        {index < assignedTo.length - 1
-                          ? ", "
-                          : index === assignedTo.length - 1
-                          ? " and "
-                          : ""}
-                      </span>
-                    ))}
-                    {"."}
-                  </>
-                ) : (
-                  `This task was assigned to you by ${assignedBy}.`
-                )}
-              </p>
+              {taskData?.assignedBy && (
+                <p className="md:text-lg">
+                  Assigned by:{" "}
+                  {assignedBy === "AI" ? (
+                    <span className="font-semibold">AI</span>
+                  ) : (
+                    <Link href={`/users/${taskData?.assignedBy}`}>
+                      <span className="font-semibold">{assignedBy}</span>
+                    </Link>
+                  )}
+                </p>
+              )}
             </div>
           </div>
+
+          {taskData?.status !== "completed" && (
+            <div className="flex flex-col p-4 md:px-6 rounded space-y-2 bg-[#141414] divide-y-2 divide-[gray]">
+              <h2 className="text-xl md:text-2xl">Edit Task</h2>
+
+              <div className="flex-col flex space-y-2 pt-4">
+                {isAssignedToUser && (
+                  <button
+                    className="button-safe"
+                    onClick={async () => {
+                      try {
+                        markTaskAsCompleted(taskData?.id!);
+                        setReloadTask(true);
+
+                        toast.success("Task marked as completed successfully.");
+                      } catch (error) {
+                        toast.error(
+                          "Failed to mark task as completed. Please try again later."
+                        );
+                        console.error(
+                          "Failed to mark task as completed:",
+                          error
+                        );
+                      }
+                    }}
+                  >
+                    Mark As Complete
+                  </button>
+                )}
+
+                {isAssignedByUser && (
+                  <button
+                    className="button-danger"
+                    onClick={async () => {
+                      try {
+                        deleteTask(
+                          taskData?.id!,
+                          taskData?.project!,
+                          taskData?.status || "progress"
+                        );
+                        navigate("/tasks");
+
+                        toast.success("Task deleted successfully.");
+                      } catch (error) {
+                        toast.error(
+                          "Failed to delete task. Please try again later."
+                        );
+                        console.error("Failed to delete task:", error);
+                      }
+                    }}
+                  >
+                    Delete Task
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

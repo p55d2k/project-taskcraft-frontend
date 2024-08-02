@@ -131,18 +131,62 @@ export const addMemberToProject = async (
       throw new Error("Project does not exist");
     }
 
+    if (projectData.isLocked) {
+      throw new Error("Project is locked");
+    }
+
+    if (!projectData.members) {
+      projectData.members = [];
+    }
+
     if (projectData.members.includes(uid)) {
       throw new Error("User is already a member of the project");
     }
 
-    await set(ref(db, `projects/${pid}/members`), [
-      ...projectData.members,
-      uid,
-    ]);
+    const currentMembers = projectData.members;
+    currentMembers.push(uid);
+
+    await set(ref(db, `projects/${pid}/members`), currentMembers);
+
     await updateUserProjects(uid, "member", projectData);
   } catch (error) {
     console.error(error);
     throw new Error("Failed to add member to project");
+  }
+};
+
+export const addMentorToProject = async (
+  pid: string,
+  uid: string
+): Promise<void> => {
+  try {
+    const projectData = await getProject(pid);
+
+    if (!projectData) {
+      throw new Error("Project does not exist");
+    }
+
+    if (projectData.isLocked) {
+      throw new Error("Project is locked");
+    }
+
+    if (!projectData.mentors) {
+      projectData.mentors = [];
+    }
+
+    if (projectData.mentors.includes(uid)) {
+      throw new Error("User is already a mentor of the project");
+    }
+
+    const currentMentors = projectData.mentors;
+    currentMentors.push(uid);
+
+    await set(ref(db, `projects/${pid}/mentors`), currentMentors);
+
+    await updateUserProjects(uid, "mentor", projectData);
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to add mentor to project");
   }
 };
 
@@ -168,12 +212,12 @@ export const deleteProject = async (pid: string): Promise<void> => {
     }
 
     const memberPromises = projectData.members.map((uid) =>
-      leaveProject(pid, uid)
+      memberLeaveProject(pid, uid, true)
     );
     await Promise.all(memberPromises);
 
     const mentorPromises = projectData.mentors.map((uid) =>
-      leaveProject(pid, uid)
+      mentorLeaveProject(pid, uid)
     );
     await Promise.all(mentorPromises);
 
@@ -216,12 +260,28 @@ export const getOwner = async (pid: string): Promise<string> => {
   }
 };
 
-export const leaveProject = async (pid: string, uid: string): Promise<void> => {
+export const memberLeaveProject = async (
+  pid: string,
+  uid: string,
+  forceLeave?: boolean
+): Promise<void> => {
   try {
     const projectData = await getProject(pid);
 
     if (!projectData) {
       throw new Error("Project does not exist");
+    }
+
+    if (projectData.isLocked) {
+      throw new Error("Project is locked");
+    }
+
+    if (!projectData.members.includes(uid)) {
+      throw new Error("User is not a member of the project");
+    }
+
+    if (projectData.members.length === 1 && !forceLeave) {
+      throw new Error("There cannot be 0 members in a project");
     }
 
     const userProjects: UserProjectStatus[] = await getUserProjects(uid);
@@ -248,6 +308,67 @@ export const leaveProject = async (pid: string, uid: string): Promise<void> => {
   }
 };
 
+export const mentorLeaveProject = async (
+  pid: string,
+  uid: string
+): Promise<void> => {
+  try {
+    const projectData = await getProject(pid);
+
+    if (!projectData) {
+      throw new Error("Project does not exist");
+    }
+
+    if (projectData.isLocked) {
+      throw new Error("Project is locked");
+    }
+
+    if (!projectData.mentors.includes(uid)) {
+      throw new Error("User is not a mentor of the project");
+    }
+
+    const userProjects: UserProjectStatus[] = await getUserProjects(uid);
+    const index = userProjects.findIndex((project) => project.id === pid);
+
+    if (index > -1) {
+      userProjects.splice(index, 1);
+      setUserProjects(uid, userProjects);
+    } else {
+      throw new Error("User does not have project in their projects");
+    }
+
+    await set(
+      ref(db, `projects/${pid}/mentors`),
+      projectData.mentors.filter((mentor) => mentor !== uid)
+    );
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to leave project");
+  }
+};
+
+export const editProjectMembers = async (
+  pid: string,
+  newMembers: string[]
+): Promise<void> => {
+  try {
+    const projectData = await getProject(pid);
+
+    if (!projectData) {
+      throw new Error("Project does not exist");
+    }
+
+    if (projectData.isLocked) {
+      throw new Error("Project is locked");
+    }
+
+    await set(ref(db, `projects/${pid}/members`), newMembers);
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to edit project members");
+  }
+};
+
 export const transferOwnership = async (
   pid: string,
   newOwner: string
@@ -255,9 +376,12 @@ export const transferOwnership = async (
   try {
     const oldOwner = await getOwner(pid);
 
+    const members = await getMembers(pid);
+    members.splice(members.indexOf(newOwner), 1);
+    members.push(oldOwner);
+
+    await set(ref(db, `projects/${pid}/members`), members);
     await set(ref(db, `projects/${pid}/owner`), newOwner);
-    await set(ref(db, `projects/${pid}/members/${oldOwner}`), null);
-    await set(ref(db, `projects/${pid}/members/${newOwner}`), true);
 
     const newOwnerProjects: UserProjectStatus[] = await getUserProjects(
       newOwner
@@ -289,5 +413,35 @@ export const transferOwnership = async (
   } catch (error) {
     console.error(error);
     throw new Error("Failed to transfer ownership");
+  }
+};
+
+export const lockProject = async (pid: string): Promise<void> => {
+  try {
+    const projectData = await getProject(pid);
+
+    if (!projectData) {
+      throw new Error("Project does not exist");
+    }
+
+    await set(ref(db, `projects/${pid}/isLocked`), true);
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to lock project");
+  }
+};
+
+export const unlockProject = async (pid: string): Promise<void> => {
+  try {
+    const projectData = await getProject(pid);
+
+    if (!projectData) {
+      throw new Error("Project does not exist");
+    }
+
+    await set(ref(db, `projects/${pid}/isLocked`), false);
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to unlock project");
   }
 };

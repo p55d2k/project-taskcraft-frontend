@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 02-08-2024
+
+The second-last release before the full release.
+
+### Added
+
+- Project member management
+- Project deletion
+- Project locking
+- Project leaving
+
+### Changed
+
+- The AI has been improved to be more accurate and helpful with prompt engineering
+- The user requesting to join the project can choose his role as member or mentor
+
+### Fixed
+
+- Ask AI page bugs in UI when displaying the AI response
+- Bugs when the tasks page tries to display a task that the AI created
+
 ## [0.5.0] - 01-08-2024
 
 Not much has changed in this release.

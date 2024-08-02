@@ -4,7 +4,7 @@ export interface UserProjectStatus {
   role: Role;
 }
 
-export type Role = "owner" | "member" | "mentor" | "admin";
+export type Role = "owner" | "member" | "mentor";
 
 export interface TaskData {
   id: string; // tid
@@ -38,19 +38,13 @@ export interface ChatMessage {
   timestamp: number;
 }
 
-export type ProjectStatus =
-  | "active"
-  | "completed"
-  | "archived"
-  | "paused"
-  | "deleted";
-
 export interface ProjectData {
   id: string; // pid
   name: string;
-  status: ProjectStatus;
 
   createdAt: number;
+
+  isLocked: boolean;
 
   chat: ChatMessage[];
 

@@ -13,7 +13,7 @@ import { createTheme, ThemeProvider } from "@mui/material";
 
 import dayjs, { Dayjs } from "dayjs";
 
-interface NewProjectPage3Props {
+interface NewTaskPage3Props {
   date: number;
   setDate: (date: number) => void;
   error: string;
@@ -28,14 +28,14 @@ const lightTheme = createTheme({
   },
 });
 
-const NewProjectPage3 = ({
+const NewTaskPage3 = ({
   date,
   setDate,
   error,
   setError,
   goBack,
   setNext,
-}: NewProjectPage3Props) => {
+}: NewTaskPage3Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
   const [rawDate, setRawDate] = useState<Dayjs | null>(dayjs(date));
 
@@ -112,7 +112,7 @@ const NewProjectPage3 = ({
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
           <button
-            className="button-secondary creation-buttons"
+            className="button-danger creation-buttons"
             onClick={goBack}
           >
             <IoIosArrowBack size={20} />
@@ -140,4 +140,4 @@ const NewProjectPage3 = ({
   );
 };
 
-export default NewProjectPage3;
+export default NewTaskPage3;

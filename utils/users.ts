@@ -7,7 +7,7 @@ import {
   deleteProject,
   getMembers,
   hasMembers,
-  leaveProject,
+  memberLeaveProject,
   transferOwnership,
 } from "./projects";
 import { Role, UserProjectStatus } from "@/typings";
@@ -73,12 +73,12 @@ export const deleteAccountData = async (uid: string): Promise<void> => {
                     await getMembers(project)
                   )[0]
                 );
-                await leaveProject(project, uid);
+                await memberLeaveProject(project, uid);
               } else {
                 await deleteProject(project);
               }
             } else {
-              await leaveProject(project, uid);
+              await memberLeaveProject(project, uid);
             }
           } catch (projectError) {
             console.error(`Error handling project ${project}:`, projectError);

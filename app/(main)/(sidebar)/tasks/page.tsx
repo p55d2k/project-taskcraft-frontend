@@ -5,7 +5,9 @@ import useAuth from "@/hooks/useAuth";
 
 import {
   getCompletedTasksForUserInProject,
+  getTasksAssignedByUser,
   getTasksForUserInProject,
+  updateTasksIfOverdue,
 } from "@/utils/tasks";
 import { kanit } from "@/utils/fonts";
 import { getUserRoleInProject } from "@/utils/users";
@@ -37,6 +39,9 @@ const TasksViewPage = () => {
   const [tasksCompletedByUser, setTasksCompletedByUser] = useState<TaskData[]>(
     []
   );
+  const [tasksAssignedByUser, setTasksAssignedByUser] = useState<TaskData[]>(
+    []
+  );
 
   useEffect(() => {
     (async () => {
@@ -53,10 +58,17 @@ const TasksViewPage = () => {
             user.uid,
             projectId
           );
+          const fetchedAssignedTasks = await getTasksAssignedByUser(
+            user.uid,
+            projectId
+          );
 
           setRole(fetchedRole);
           setTasksAssignedToUser(fetchedTasks);
           setTasksCompletedByUser(fetchedCompletedTasks);
+          setTasksAssignedByUser(fetchedAssignedTasks);
+
+          await updateTasksIfOverdue(projectId);
         } catch (error) {
           console.error("Failed to fetch data:", error);
           toast.error("Something went wrong. Please try again later.");
@@ -136,6 +148,24 @@ const TasksViewPage = () => {
               <div className="flex flex-col items-center justify-center h-60 md:h-72 lg:h-96">
                 <p className="text-[gray] text-lg">
                   You have not completed any tasks yet...
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col p-4 md:px-6 rounded space-y-2 bg-[#141414] divide-y-2 divide-[gray]">
+            <h2 className="text-xl md:text-2xl">Tasks You Assigned</h2>
+
+            {role !== "member" && tasksAssignedByUser?.length ? (
+              <div className="flex flex-col space-y-2 pt-2">
+                {tasksAssignedByUser.map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-60 md:h-72 lg:h-96">
+                <p className="text-[gray] text-lg">
+                  You have not assigned any tasks.
                 </p>
               </div>
             )}

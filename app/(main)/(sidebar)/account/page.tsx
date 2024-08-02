@@ -129,7 +129,7 @@ const AccountPage = () => {
                   be certain.
                 </p>
               </div>
-              <Link className="button-secondary !w-auto" href="/auth/delete">
+              <Link className="button-danger !w-auto" href="/auth/delete">
                 Delete Account
               </Link>
             </div>
