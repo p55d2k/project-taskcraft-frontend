@@ -329,8 +329,8 @@ const ProjectSettings = () => {
                       </DialogTitle>
                       <DialogDescription className="text-sm md:text-base pb-2">
                         This action cannot be undone. This will permanently
-                        delete this project and remove the project's data from
-                        our servers.
+                        delete this project and remove the project&apos;s data
+                        from our servers.
                       </DialogDescription>
                       <DialogClose
                         className="button-danger py-1"
