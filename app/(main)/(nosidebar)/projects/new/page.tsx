@@ -41,9 +41,10 @@ const NewProject = () => {
       const projectData: ProjectData = {
         id: generateUniqueId(),
         name: name,
-        status: "active",
 
         chat: [],
+
+        isLocked: false,
 
         createdAt: Date.now(),
 
