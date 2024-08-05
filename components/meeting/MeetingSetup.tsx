@@ -4,7 +4,7 @@ import { Call, DeviceSettings, VideoPreview } from "@stream-io/video-react-sdk";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import useData from "@/hooks/useData";
 
 const MeetingSetup = ({
@@ -17,9 +17,7 @@ const MeetingSetup = ({
   const [isMicCamEnabled, setIsMicCamEnabled] = useState(false);
   const router = useRouter();
 
-  if (!call) {
-    router.push("/404");
-  }
+  const { projectData } = useData();
 
   useEffect(() => {
     if (isMicCamEnabled) {
@@ -31,7 +29,9 @@ const MeetingSetup = ({
     }
   }, [isMicCamEnabled, call?.camera, call?.microphone]);
 
-  const { projectData } = useData();
+  if (!call) {
+    return notFound();
+  }
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-3 text-white">

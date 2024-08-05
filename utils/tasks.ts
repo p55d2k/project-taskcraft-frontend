@@ -3,11 +3,12 @@
 import { ref, get, child, set } from "firebase/database";
 import { db } from "@/firebase";
 
-import { ProjectData, TaskData } from "@/typings";
+import { ProjectData, TaskData } from "@/types";
 
-export const getTasksForUserInProject = async (
+export const getTasksAssignedToUser = async (
   uid: string,
-  pid: string
+  pid: string,
+  sortByDueDate?: boolean
 ): Promise<TaskData[]> => {
   const dbRef = ref(db);
   let tasks: TaskData[] = [];
@@ -31,6 +32,10 @@ export const getTasksForUserInProject = async (
       tasks = resolvedTasks.filter((task): task is TaskData => task !== null);
     }
 
+    if (sortByDueDate) {
+      tasks.sort((a, b) => a.dueDate - b.dueDate);
+    }
+
     return tasks;
   } catch (error) {
     console.error(error);
@@ -38,7 +43,7 @@ export const getTasksForUserInProject = async (
   }
 };
 
-export const getCompletedTasksForUserInProject = async (
+export const getCompletedTasksAssignedToUser = async (
   uid: string,
   pid: string
 ): Promise<TaskData[]> => {
@@ -65,6 +70,18 @@ export const getCompletedTasksForUserInProject = async (
     }
 
     return tasks;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const doesTaskExist = async (tid: string): Promise<boolean> => {
+  try {
+    const dbRef = ref(db);
+    const snapshot = await get(child(dbRef, `tasks/${tid}`));
+
+    return snapshot.exists();
   } catch (error) {
     console.error(error);
     throw error;

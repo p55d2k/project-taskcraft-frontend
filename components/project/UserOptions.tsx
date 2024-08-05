@@ -5,7 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Role } from "@/typings";
+import { Role } from "@/types";
 
 import {
   memberLeaveProject,
@@ -23,6 +23,8 @@ interface UserOptionsProps {
   projectID: string;
   userRole: Role;
   setUserRole: (role: Role) => void;
+  mentorNames?: string[];
+  setMentorNames?: (names: string[]) => void;
   className?: string;
 }
 
@@ -33,6 +35,8 @@ const UserOptions = ({
   projectID,
   userRole,
   setUserRole,
+  mentorNames,
+  setMentorNames,
   className,
 }: UserOptionsProps) => {
   if (!username || !userID) return null;
@@ -107,6 +111,9 @@ const UserOptions = ({
                     await mentorLeaveProject(projectID, userID)
                       .then(() => {
                         toast.success("Mentor has been kicked");
+                        setMentorNames?.(
+                          mentorNames?.filter((name) => name !== username) || []
+                        );
                       })
                       .catch((error) => {
                         console.error(`Failed to kick user: ${error}`);

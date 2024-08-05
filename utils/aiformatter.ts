@@ -1,6 +1,6 @@
 import { nameFromId } from "./users";
 import { getTask } from "./tasks";
-import { ProjectData, TaskData } from "@/typings";
+import { ProjectData, TaskData } from "@/types";
 
 export const formatTaskData = async (taskData: TaskData): Promise<string> => {
   const assignedTo = await Promise.all(

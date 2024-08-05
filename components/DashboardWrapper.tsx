@@ -3,7 +3,7 @@
 "use client";
 
 import useData from "@/hooks/useData";
-import { Role } from "@/typings";
+import { Role } from "@/types";
 import { kanit } from "@/utils/fonts";
 import Loading from "./Loading";
 

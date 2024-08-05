@@ -1,7 +1,7 @@
 "use client";
 
 import { SubmitHandler, useForm } from "react-hook-form";
-import { navigate } from "@/utils/actions";
+import { navigate } from "@/actions/navigate";
 import useAuth from "@/hooks/useAuth";
 
 import { useEffect, useState } from "react";

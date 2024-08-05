@@ -21,7 +21,7 @@ const MeetingCard = ({
       onClick={handleClick}
     >
       <div className="flex items-center justify-center glassmorphism size-12 rounded-lg">
-        <Image src={img} alt="meeting" width={27} height={27} />
+        <Image src={img} alt="meeting" width={27} height={27} unoptimized />
       </div>
 
       <div className="flex flex-col gap-2">

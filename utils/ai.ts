@@ -1,7 +1,7 @@
 "use client";
 
 import { OpenAIResponse } from "@/openai";
-import { ProjectData, TaskData } from "@/typings";
+import { ProjectData, TaskData } from "@/types";
 import { generateUniqueId } from "./unique";
 import { formatProjectData } from "./aiformatter";
 

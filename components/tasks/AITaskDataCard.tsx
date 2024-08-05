@@ -1,6 +1,6 @@
 "use client";
 
-import { TaskData } from "@/typings";
+import { TaskData } from "@/types";
 import { nameFromId } from "@/utils/users";
 import { useEffect, useState } from "react";
 

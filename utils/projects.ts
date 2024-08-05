@@ -3,8 +3,38 @@
 import { ref, get, child, set } from "firebase/database";
 import { db } from "@/firebase";
 
-import { ProjectData, Role, UserProjectStatus } from "@/typings";
+import { ProjectData, Role, UserProjectStatus } from "@/types";
 import { getUserProjects, setUserProjects } from "./users";
+
+export const hasMentors = async (pid: string): Promise<boolean> => {
+  try {
+    const snapshot = await get(child(ref(db), `projects/${pid}/mentors`));
+    return snapshot.exists();
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to check if project has mentors");
+  }
+};
+
+export const getMentors = async (pid: string): Promise<string[]> => {
+  if (!(await hasMentors(pid))) {
+    return [];
+  }
+
+  try {
+    const dbRef = ref(db);
+    const snapshot = await get(child(dbRef, `projects/${pid}/mentors`));
+
+    if (snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to get mentors");
+  }
+};
 
 export const getMembers = async (pid: string): Promise<string[]> => {
   if (!(await hasMembers(pid))) {
@@ -35,6 +65,25 @@ export const getMemberNames = async (pid: string): Promise<string[]> => {
   });
 
   return Promise.all(memberNamesPromises);
+};
+
+export const getMemberEmails = async (pid: string): Promise<string[]> => {
+  const members = await getMembers(pid);
+
+  const memberEmailsPromises = members.map(async (uid) => {
+    const snapshot = await get(child(ref(db), `users/${uid}/email`));
+    return snapshot.val();
+  });
+
+  return Promise.all(memberEmailsPromises);
+};
+
+export const getUsersPartOfProject = async (pid: string): Promise<string[]> => {
+  const members = await getMembers(pid);
+  const owner = await getOwner(pid);
+  const mentors = await getMentors(pid);
+
+  return [owner, ...members, ...mentors];
 };
 
 export const updateUserProjects = async (

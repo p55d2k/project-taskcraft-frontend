@@ -141,7 +141,7 @@ const NewTaskPage3 = ({
       </div>
       <div className="w-full lg:w-[85%] min-h-[50vh] sm:min-h-screen lg:h-auto -z-10 flex items-end justify-center">
         <Image
-          src="/imgs/catgirl3.png"
+          src="/imgs/3.png"
           alt=""
           width={100}
           height={100}

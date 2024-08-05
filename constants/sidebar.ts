@@ -32,15 +32,13 @@ const getSidebarItems = (): SidebarSectionType[] => {
     },
     {
       name: "writing",
-      items: [ 
+      items: [
         {
-          text: "View Reports",
+          text: "Documents",
           icon: TbReportSearch,
-          link: "/reports",
+          link: "/docs",
         },
-        { text: "Write Report", icon: TbReport, link: "/reports/new" },
         { text: "Paraphrase Tool", icon: TfiWrite, link: "/writing/pp" },
-        // https://github.com/natsuozawa/citeapa
         { text: "Citation Generator", icon: IoMdSchool, link: "/writing/cite" },
       ],
     },

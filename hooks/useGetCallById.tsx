@@ -1,6 +1,5 @@
 import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
 
-import { navigate } from "@/utils/actions";
 import { isUserPartOfProject } from "@/utils/users";
 
 import { useEffect, useState } from "react";
@@ -19,10 +18,11 @@ export const useGetCallById = (id: string, userId: string) => {
         filter_conditions: { id },
       });
 
-      if (calls.length > 0) setCall(calls[0]);
+      const partOfProject = await isUserPartOfProject(userId, id);
 
-      const part = await isUserPartOfProject(userId, id);
-      if (!part) navigate("/404");
+      if (calls.length > 0 && partOfProject) {
+        setCall(calls[0]);
+      }
 
       setIsCallLoading(false);
     })();
