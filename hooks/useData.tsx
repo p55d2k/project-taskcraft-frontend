@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import toast from "react-hot-toast";
 
 import {
   DatabaseReference,
@@ -13,10 +14,14 @@ import {
 import { db } from "@/firebase";
 
 import useAuth from "./useAuth";
-import { ProjectData, UserData } from "@/typings";
-import { navigate } from "@/utils/actions";
+import { ProjectData, UserData } from "@/types";
+import { navigate } from "@/actions/navigate";
+import { pageExists } from "@/utils/pathexists";
 import { noProjectRoutes } from "@/constants/routes";
-import toast from "react-hot-toast";
+
+import { useRecoilState } from "recoil";
+import { loadingAtom } from "@/atoms/loadingAtom";
+import { revalidatePath } from "next/cache";
 
 interface IDataContext {
   userData: UserData | null;
@@ -56,11 +61,15 @@ export const DataProvider = ({ children }: DataProviderProps) => {
     null
   );
 
+  const [loading, setLoading] = useRecoilState(loadingAtom);
+
   const { user } = useAuth();
   const pathname = usePathname();
 
   useEffect(() => {
     if (!pathname) return;
+
+    setLoading(true);
 
     let path_allowed = false;
     for (const path of noProjectRoutes) {
@@ -70,15 +79,20 @@ export const DataProvider = ({ children }: DataProviderProps) => {
       }
     }
 
-    if (
-      (!projectId || !projectData) &&
-      !path_allowed &&
-      user &&
-      pathname !== "/"
-    ) {
-      toast.error("Please select a project to continue");
-      navigate(`/projects?continue=${pathname}`);
-    }
+    (async () => {
+      if (
+        (!projectId || !projectData) &&
+        !path_allowed &&
+        user &&
+        pathname !== "/" &&
+        (await pageExists(pathname))
+      ) {
+        toast.error("Please select a project to continue");
+        navigate(`/projects?continue=${pathname}`);
+      }
+
+      setLoading(false);
+    })();
   }, [pathname]);
 
   useEffect(() => {

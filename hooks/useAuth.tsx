@@ -19,8 +19,8 @@ import {
 import { ref, set } from "firebase/database";
 
 import { noUserRoutes } from "@/constants/routes";
-import { navigate } from "@/utils/actions";
-import { UserData } from "@/typings";
+import { navigate } from "@/actions/navigate";
+import { UserData } from "@/types";
 
 import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";

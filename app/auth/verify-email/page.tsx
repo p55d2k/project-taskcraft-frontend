@@ -1,6 +1,6 @@
 "use client";
 
-import { navigate } from "@/utils/actions";
+import { navigate } from "@/actions/navigate";
 
 import useAuth from "@/hooks/useAuth";
 

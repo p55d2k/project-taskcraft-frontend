@@ -10,7 +10,7 @@ import {
   memberLeaveProject,
   transferOwnership,
 } from "./projects";
-import { Role, UserProjectStatus } from "@/typings";
+import { Role, UserData, UserProjectStatus } from "@/types";
 
 export const nameFromId = async (id: string): Promise<string> => {
   const dbRef = ref(db);
@@ -203,5 +203,36 @@ export const isUserPartOfProject = async (
   } catch (error) {
     console.error(error);
     throw new Error("Failed to check if user is part of project");
+  }
+};
+
+export const getUserEmails = async (uids: string[]): Promise<string[]> => {
+  try {
+    const dbRef = ref(db);
+    const emailPromises = uids.map(async (uid) => {
+      const snapshot = await get(child(dbRef, `users/${uid}/email`));
+      return snapshot.val();
+    });
+
+    return await Promise.all(emailPromises);
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to get user emails");
+  }
+};
+
+export const getUserData = async (uid: string): Promise<UserData> => {
+  try {
+    const dbRef = ref(db);
+    const snapshot = await get(child(dbRef, `users/${uid}`));
+
+    if (snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      throw new Error("User not found");
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to get user data");
   }
 };

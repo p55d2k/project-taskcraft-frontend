@@ -1,4 +1,4 @@
-import { UserProjectStatus } from "@/typings";
+import { UserProjectStatus } from "@/types";
 
 interface ProjectCardProps {
   project: UserProjectStatus;

@@ -14,7 +14,7 @@ import useAuth from "@/hooks/useAuth";
 
 import { MdLogout, MdAccountCircle } from "react-icons/md";
 
-import { navigate } from "@/utils/actions";
+import { navigate } from "@/actions/navigate";
 
 const Sidebar = () => {
   const { userData } = useData();

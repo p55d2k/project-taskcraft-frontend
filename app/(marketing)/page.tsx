@@ -12,12 +12,12 @@ const Welcome = () => {
         </h1>
         <p className="text-xl md:text-2xl xl:text-3xl text-center lg:text-left">
           TaskCraft is the simplest and easiest way to manage your projects with
-          AI integration. Get started today, and don&apos;t stop taskmaxxing!
+          AI integration. Get started today!
         </p>
       </div>
       <div className="w-full lg:w-[85%] min-h-[60vh] sm:min-h-screen lg:h-auto -z-10 flex items-end justify-center">
         <Image
-          src="imgs/catgirl3.png"
+          src="/imgs/5.png"
           alt=""
           width={100}
           height={100}

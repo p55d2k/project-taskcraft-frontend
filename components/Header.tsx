@@ -8,7 +8,7 @@ import Link from "next/link";
 import useAuth from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
 
-import { navigate } from "@/utils/actions";
+import { navigate } from "@/actions/navigate";
 
 const Header = () => {
   const { user } = useAuth();

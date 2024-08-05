@@ -24,9 +24,18 @@ const config = {
           2: "#161925",
           3: "#252A41",
           4: "#1E2757",
+          100: "#09111F",
+          200: "#0B1527",
+          300: "#0F1C34",
+          350: "#12213B",
+          400: "#27344D",
+          500: "#2E3D5B",
         },
         blue: {
           1: "#0E78F9",
+          100: "#B4C6EE",
+          400: "#417BFF",
+          500: "#3371FF",
         },
         sky: {
           1: "#C9DDFF",
@@ -42,6 +51,10 @@ const config = {
         yellow: {
           1: "#F9A90E",
         },
+        red: {
+          400: "#DD4F56",
+          500: "#DC4349",
+        },
       },
       keyframes: {
         "accordion-down": {
@@ -56,6 +69,10 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      backgroundImage: {
+        doc: "url(/images/doc.png)",
+        modal: "url(/images/modal.png)",
       },
     },
   },

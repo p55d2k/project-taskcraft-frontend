@@ -1,4 +1,4 @@
-import { TaskData } from "@/typings";
+import { TaskData } from "@/types";
 import Link from "next/link";
 
 interface TaskProps {

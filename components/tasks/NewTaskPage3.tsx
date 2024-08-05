@@ -111,10 +111,7 @@ const NewTaskPage3 = ({
         </ThemeProvider>
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
-          <button
-            className="button-danger creation-buttons"
-            onClick={goBack}
-          >
+          <button className="button-danger creation-buttons" onClick={goBack}>
             <IoIosArrowBack size={20} />
             Back
           </button>
@@ -128,7 +125,7 @@ const NewTaskPage3 = ({
       </div>
       <div className="w-full lg:w-[85%] min-h-[50vh] sm:min-h-screen lg:h-auto -z-10 flex items-end justify-center">
         <Image
-          src="/imgs/catgirl3.png"
+          src="/imgs/1.png"
           alt=""
           width={100}
           height={100}

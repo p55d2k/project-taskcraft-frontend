@@ -1,7 +1,7 @@
 import { ref, get, child, remove, set } from "firebase/database";
 import { db } from "@/firebase";
 
-import { ChatMessage } from "@/typings";
+import { ChatMessage } from "@/types";
 
 export const sendMessage = async (
   from: string, // uid

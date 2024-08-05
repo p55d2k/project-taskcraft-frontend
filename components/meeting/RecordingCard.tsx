@@ -35,7 +35,13 @@ const RecordingCard = ({
       <article className={cn("flex justify-center relative", {})}>
         <div className="flex gap-2">
           <Button onClick={handleClick} className="rounded bg-blue-1 px-6">
-            <Image src="/icons/play.svg" alt="feature" width={20} height={20} />
+            <Image
+              src="/icons/play.svg"
+              alt="feature"
+              width={20}
+              height={20}
+              unoptimized
+            />
             &nbsp; Play
           </Button>
           <Button
@@ -45,7 +51,13 @@ const RecordingCard = ({
             }}
             className="bg-dark-4 px-6"
           >
-            <Image src="/icons/copy.svg" alt="feature" width={20} height={20} />
+            <Image
+              src="/icons/copy.svg"
+              alt="feature"
+              width={20}
+              height={20}
+              unoptimized
+            />
             &nbsp; Copy Link
           </Button>
         </div>
