@@ -5,15 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 03-08-2024
+## [0.7.0] - 03-08-2024
 
-The full release of the project! 🎉
+Maybe just one last pre-release...?
 
 ### Added
 
 - Custom 404 page
 - Citation Generator
-- You can copy a user's user ID by clicking on their profile from the project settings page, and go to their profile page
+<!-- - You can copy a user's user ID by clicking on their profile from the project settings page, and go to their profile page -->
 - Members and mentors can now be added from the project settings page by the project owner
 
 ### Changed
