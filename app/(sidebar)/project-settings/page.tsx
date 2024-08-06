@@ -309,8 +309,8 @@ const ProjectSettings = () => {
                           Add a member
                         </DialogTitle>
                         <DialogDescription className="text-sm md:text-base pb-2">
-                          Add a member to this project by entering their user
-                          ID.
+                          Add a member to this project by entering their
+                          username.
                         </DialogDescription>
 
                         <Input
@@ -327,6 +327,18 @@ const ProjectSettings = () => {
                         >
                           Add Member
                         </DialogClose>
+
+                        <button
+                          className="button-primary py-2"
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              `${window.location.origin}/join-with-link/${projectId}`
+                            );
+                            toast.success("Copied member invite link");
+                          }}
+                        >
+                          Copy member invite link
+                        </button>
                       </DialogHeader>
                     </DialogContent>
                   </Dialog>
@@ -371,8 +383,8 @@ const ProjectSettings = () => {
                           Add a mentor
                         </DialogTitle>
                         <DialogDescription className="text-sm md:text-base pb-2">
-                          Add a mentor to this project by entering their user
-                          ID.
+                          Add a mentor to this project by entering their
+                          username.
                         </DialogDescription>
 
                         <Input

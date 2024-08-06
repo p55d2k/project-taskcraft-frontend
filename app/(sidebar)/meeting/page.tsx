@@ -4,9 +4,9 @@ import { loadingAtom } from "@/atoms/loadingAtom";
 import { useRecoilState } from "recoil";
 
 import DashboardWrapper from "@/components/DashboardWrapper";
-import MeetingCard from "@/components/meeting/MeetingCard";
 
 import { useEffect } from "react";
+import Image from "next/image";
 
 import { navigate } from "@/actions/navigate";
 import useData from "@/hooks/useData";
@@ -59,23 +59,28 @@ const MeetingPage = () => {
   }, [client, projectId, projectData]);
 
   return (
-    <DashboardWrapper loading={loading} pageName="Meeting">
-      <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 pt-4 md:pt-6">
-        <MeetingCard
-          img="/icons/join-meeting.svg"
-          title="Join Meeting"
-          description="Join the current project meeting"
-          className="bg-blue-1"
-          handleClick={() => navigate(`/meeting/${projectId}`)}
-        />
-        <MeetingCard
-          img="/icons/recordings.svg"
-          title="View Recordings"
-          description="View your past meeting recordings"
-          className="bg-yellow-1"
-          handleClick={() => navigate("/recordings")}
-        />
-      </section>
+    <DashboardWrapper loading={loading} pageName="Meeting" className="pt-4">
+      <div
+        className={`bg-blue-1 px-4 py-6 flex flex-col justify-between w-full xl:mx-w-[270px] min-h-[260px] rounded-xl cursor-pointer border-2 border-transparent hover:border-white ease-in-out transition-all duration-400`}
+        onClick={() => navigate(`/meeting/${projectId}`)}
+      >
+        <div className="flex items-center justify-center glassmorphism size-12 rounded-lg">
+          <Image
+            src={"/icons/join-meeting.svg"}
+            alt="meeting"
+            width={27}
+            height={27}
+            unoptimized
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-bold">Join Meeting</h1>
+          <p className="text-lg font-normal">
+            Join the current project meeting
+          </p>
+        </div>
+      </div>
     </DashboardWrapper>
   );
 };

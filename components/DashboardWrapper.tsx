@@ -12,6 +12,7 @@ interface DashboardWrapperProps {
   loading: boolean;
   pageName: string;
   role?: Role;
+  className?: string;
 }
 
 const DashboardWrapper = ({
@@ -19,6 +20,7 @@ const DashboardWrapper = ({
   loading,
   pageName,
   role,
+  className,
 }: DashboardWrapperProps) => {
   const { projectData } = useData();
 
@@ -46,7 +48,7 @@ const DashboardWrapper = ({
           )}
         </div>
 
-        {children}
+        <div className={className}>{children}</div>
       </div>
     </div>
   );

@@ -136,10 +136,7 @@ const NewProject = () => {
 
           <p className="text-red-500 text-sm mt-2">{error}</p>
           <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
-            <Link
-              className="button-danger creation-buttons"
-              href="/projects"
-            >
+            <Link className="button-danger creation-buttons" href="/projects">
               <IoMdClose size={20} />
               Cancel
             </Link>
