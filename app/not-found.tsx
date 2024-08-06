@@ -9,15 +9,15 @@ const NotFound404Page = () => {
           404 Not Found.
         </h1>
         <p className="text-xl md:text-2xl xl:text-3xl text-center lg:text-left xl:max-w-[70%]">
-          Congrats, you found our hidden mascot catgirls/catgirl that can only be found
+          Congrats, you found our hidden mascot catgirl that can only be found
           on this page!
         </p>
 
         <Link
           className="button-primary w-full text-center xl:max-w-[70%]"
-          href="/"
+          href="/projects"
         >
-          Go Home
+          Go Back to Projects Page
         </Link>
       </div>
       <div className="w-full lg:w-[85%] min-h-[60vh] sm:min-h-screen lg:h-auto -z-10 flex items-end justify-center">

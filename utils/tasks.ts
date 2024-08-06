@@ -6,7 +6,7 @@ import { db } from "@/firebase";
 import { ProjectData, TaskData } from "@/types";
 
 export const getTasksAssignedToUser = async (
-  uid: string,
+  name: string,
   pid: string,
   sortByDueDate?: boolean
 ): Promise<TaskData[]> => {
@@ -22,7 +22,7 @@ export const getTasksAssignedToUser = async (
       const taskPromises = projectTasks.map(async (taskId) => {
         const taskData = await getTask(taskId);
 
-        if (taskData.assignedTo.includes(uid)) {
+        if (taskData.assignedTo.includes(name)) {
           return taskData;
         }
         return null;
@@ -44,7 +44,7 @@ export const getTasksAssignedToUser = async (
 };
 
 export const getCompletedTasksAssignedToUser = async (
-  uid: string,
+  name: string,
   pid: string
 ): Promise<TaskData[]> => {
   const dbRef = ref(db);
@@ -59,7 +59,7 @@ export const getCompletedTasksAssignedToUser = async (
       const taskPromises = projectTasks.map(async (taskId) => {
         const taskData = await getTask(taskId);
 
-        if (taskData.assignedTo.includes(uid)) {
+        if (taskData.assignedTo.includes(name)) {
           return taskData;
         }
         return null;
@@ -147,7 +147,7 @@ export const createTask = async (
 };
 
 export const getTasksAssignedByUser = async (
-  uid: string,
+  name: string,
   pid: string
 ): Promise<TaskData[]> => {
   const dbRef = ref(db);
@@ -167,7 +167,7 @@ export const getTasksAssignedByUser = async (
         const taskPromises = projectTasks.map(async (taskId) => {
           const taskData = await getTask(taskId);
 
-          if (taskData.assignedBy === uid) {
+          if (taskData.assignedBy === name) {
             return taskData;
           }
           return null;

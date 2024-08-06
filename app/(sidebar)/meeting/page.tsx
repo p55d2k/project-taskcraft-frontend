@@ -6,32 +6,31 @@ import { useRecoilState } from "recoil";
 import DashboardWrapper from "@/components/DashboardWrapper";
 import MeetingCard from "@/components/meeting/MeetingCard";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { navigate } from "@/actions/navigate";
-import useAuth from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
 
 import toast from "react-hot-toast";
 
-import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
+import { useStreamVideoClient } from "@stream-io/video-react-sdk";
 
 const MeetingPage = () => {
   const [loading, setLoading] = useRecoilState(loadingAtom);
 
-  const { user } = useAuth();
   const { projectId, projectData } = useData();
   const client = useStreamVideoClient();
 
   useEffect(() => {
     (async () => {
-      if (!client || !user || !projectId || !projectData) return;
+      if (!client || !projectId || !projectData) return;
+
+      setLoading(true);
 
       try {
-        const id = projectId;
-        const call = client.call("default", id);
+        const newCall = client.call("default", projectId);
 
-        if (!call) {
+        if (!newCall) {
           toast.error("Failed to create call");
           throw new Error("Failed to create call");
         }
@@ -39,7 +38,7 @@ const MeetingPage = () => {
         const startsAt = new Date(Date.now()).toISOString();
         const description = projectData.name + " Meeting";
 
-        await call.getOrCreate({
+        await newCall.getOrCreate({
           data: {
             starts_at: startsAt,
             custom: {
@@ -48,12 +47,16 @@ const MeetingPage = () => {
             },
           },
         });
+
+        console.log("Call created successfully", newCall);
       } catch (error) {
         toast.error("Something went wrong. Please try again later.");
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     })();
-  }, []);
+  }, [client, projectId, projectData]);
 
   return (
     <DashboardWrapper loading={loading} pageName="Meeting">

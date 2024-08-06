@@ -1,7 +1,7 @@
 "use client";
 
 import useData from "@/hooks/useData";
-import useAuth from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 
 import { getUserRoleInProject } from "@/utils/users";
 import { getTasksAssignedToUser } from "@/utils/tasks";
@@ -21,7 +21,7 @@ import toast from "react-hot-toast";
 const Dashboard = () => {
   const { projectData, projectId } = useData();
 
-  const { user } = useAuth();
+  const { user } = useUser();
 
   const [loading, setLoading] = useRecoilState(loadingAtom);
   const [role, setRole] = useState<Role | undefined>(undefined);
@@ -35,9 +35,12 @@ const Dashboard = () => {
         setLoading(true);
 
         try {
-          const fetchedRole = await getUserRoleInProject(user.uid, projectId);
+          const fetchedRole = await getUserRoleInProject(
+            user.username!,
+            projectId
+          );
           const fetchedTasks = await getTasksAssignedToUser(
-            user.uid,
+            user.username!,
             projectId,
             true
           );

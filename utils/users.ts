@@ -12,23 +12,11 @@ import {
 } from "./projects";
 import { Role, UserData, UserProjectStatus } from "@/types";
 
-export const nameFromId = async (id: string): Promise<string> => {
+export const doesUserExist = async (name: string): Promise<boolean> => {
   const dbRef = ref(db);
 
   try {
-    const snapshot = await get(child(dbRef, `users/${id}/name`));
-    return snapshot.val();
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-
-export const doesUserExist = async (uid: string): Promise<boolean> => {
-  const dbRef = ref(db);
-
-  try {
-    const snapshot = await get(child(dbRef, `users/${uid}`));
+    const snapshot = await get(child(dbRef, `users/${name.toLowerCase()}`));
     return snapshot.exists();
   } catch (error) {
     console.error(error);
@@ -36,27 +24,11 @@ export const doesUserExist = async (uid: string): Promise<boolean> => {
   }
 };
 
-export const isOwner = async (uid: string, pid: string): Promise<boolean> => {
+export const deleteAccountData = async (name: string): Promise<void> => {
   const dbRef = ref(db);
 
   try {
-    const snapshot = await get(child(dbRef, `projects/${pid}`));
-    if (snapshot.exists()) {
-      return snapshot.val().owner === uid;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-};
-
-export const deleteAccountData = async (uid: string): Promise<void> => {
-  const dbRef = ref(db);
-
-  try {
-    const projectsSnapshot = await get(child(dbRef, `users/${uid}/projects`));
+    const projectsSnapshot = await get(child(dbRef, `users/${name}/projects`));
 
     if (projectsSnapshot.exists()) {
       const projects = projectsSnapshot.val();
@@ -73,12 +45,12 @@ export const deleteAccountData = async (uid: string): Promise<void> => {
                     await getMembers(project)
                   )[0]
                 );
-                await memberLeaveProject(project, uid);
+                await memberLeaveProject(project, name);
               } else {
                 await deleteProject(project);
               }
             } else {
-              await memberLeaveProject(project, uid);
+              await memberLeaveProject(project, name);
             }
           } catch (projectError) {
             console.error(`Error handling project ${project}:`, projectError);
@@ -90,7 +62,7 @@ export const deleteAccountData = async (uid: string): Promise<void> => {
       await Promise.all(projectPromises);
     }
 
-    await remove(child(dbRef, `users/${uid}`));
+    await remove(child(dbRef, `users/${name}`));
   } catch (error) {
     console.error("Error deleting account data:", error);
     throw error;
@@ -98,11 +70,11 @@ export const deleteAccountData = async (uid: string): Promise<void> => {
 };
 
 export const getUserProjects = async (
-  uid: string
+  name: string
 ): Promise<UserProjectStatus[]> => {
   try {
     const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, `users/${uid}/projects`));
+    const snapshot = await get(child(dbRef, `users/${name}/projects`));
 
     if (snapshot.exists()) {
       return snapshot.val();
@@ -116,16 +88,18 @@ export const getUserProjects = async (
 };
 
 export const getUserProjectStatus = async (
-  uid: string,
+  name: string,
   projectId: string
 ): Promise<UserProjectStatus | null> => {
   try {
     const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, `users/${uid}/projects`));
+    const snapshot = await get(child(dbRef, `users/${name}/projects`));
 
     if (snapshot.exists()) {
       const projects: UserProjectStatus[] = snapshot.val();
-      return projects.find((project) => project.id === projectId) || null;
+      return (
+        projects.find((project) => project?.id || "" === projectId) || null
+      );
     } else {
       return null;
     }
@@ -136,11 +110,11 @@ export const getUserProjectStatus = async (
 };
 
 export const getUserRoleInProject = async (
-  uid: string,
+  name: string,
   projectId: string
 ): Promise<Role | undefined> => {
   try {
-    const data = await getUserProjectStatus(uid, projectId);
+    const data = await getUserProjectStatus(name.toLowerCase(), projectId);
     return data?.role;
   } catch (error) {
     console.error(error);
@@ -149,21 +123,21 @@ export const getUserRoleInProject = async (
 };
 
 export const setUserProjects = async (
-  uid: string,
+  name: string,
   projects: UserProjectStatus[]
 ): Promise<void> => {
   try {
     const dbRef = ref(db);
-    await remove(child(dbRef, `users/${uid}/projects`));
-    await set(child(dbRef, `users/${uid}/projects`), projects);
+    await remove(child(dbRef, `users/${name}/projects`));
+    await set(child(dbRef, `users/${name}/projects`), projects);
   } catch (error) {
     console.error(error);
     throw new Error("Failed to set user projects");
   }
 };
 
-export const isUserInProject = async (
-  uid: string,
+export const isUserMemberOfProject = async (
+  name: string,
   projectId: string
 ): Promise<boolean> => {
   try {
@@ -171,7 +145,45 @@ export const isUserInProject = async (
     const snapshot = await get(child(dbRef, `projects/${projectId}/members`));
 
     if (snapshot.exists()) {
-      return snapshot.val().includes(uid);
+      return snapshot.val().includes(name);
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to check if user is in project");
+  }
+};
+
+export const isUserOwnerOfProject = async (
+  name: string,
+  pid: string
+): Promise<boolean> => {
+  const dbRef = ref(db);
+
+  try {
+    const snapshot = await get(child(dbRef, `projects/${pid}`));
+    if (snapshot.exists()) {
+      return snapshot.val().owner === name;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+export const isUserMentorOfProject = async (
+  name: string,
+  projectId: string
+): Promise<boolean> => {
+  try {
+    const dbRef = ref(db);
+    const snapshot = await get(child(dbRef, `projects/${projectId}/mentors`));
+
+    if (snapshot.exists()) {
+      return snapshot.val().includes(name);
     } else {
       return false;
     }
@@ -182,12 +194,12 @@ export const isUserInProject = async (
 };
 
 export const isUserPartOfProject = async (
-  uid: string,
+  name: string,
   projectId: string
 ): Promise<boolean> => {
   try {
     const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, `users/${uid}/projects`));
+    const snapshot = await get(child(dbRef, `users/${name}/projects`));
 
     if (snapshot.exists()) {
       let inProject = false;
@@ -206,11 +218,11 @@ export const isUserPartOfProject = async (
   }
 };
 
-export const getUserEmails = async (uids: string[]): Promise<string[]> => {
+export const getUserEmails = async (names: string[]): Promise<string[]> => {
   try {
     const dbRef = ref(db);
-    const emailPromises = uids.map(async (uid) => {
-      const snapshot = await get(child(dbRef, `users/${uid}/email`));
+    const emailPromises = names.map(async (name) => {
+      const snapshot = await get(child(dbRef, `users/${name}/email`));
       return snapshot.val();
     });
 
@@ -221,10 +233,10 @@ export const getUserEmails = async (uids: string[]): Promise<string[]> => {
   }
 };
 
-export const getUserData = async (uid: string): Promise<UserData> => {
+export const getUserData = async (name: string): Promise<UserData> => {
   try {
     const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, `users/${uid}`));
+    const snapshot = await get(child(dbRef, `users/${name.toLowerCase()}`));
 
     if (snapshot.exists()) {
       return snapshot.val();

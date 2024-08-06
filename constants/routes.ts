@@ -1,8 +1,19 @@
-export const noUserRoutes = ["/auth"];
-
 export const noProjectRoutes = [
-  ...noUserRoutes,
+  "/sign-in",
+  "/sign-up",
   "/projects",
-  "/account",
   "/meeting/",
+  "/new-account",
+  "/404",
+];
+
+export const needProjectRoutes = [
+  "/meeting",
+  "/tasks",
+  "/chat",
+  "/ai",
+  "/project-settings",
+  "/dashboard",
+  "/recordings",
+  "/writing",
 ];

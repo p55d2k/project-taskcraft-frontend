@@ -8,17 +8,6 @@
   }
 }
 
-.glassmorphism {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.glassmorphism2 {
-  background: rgba(18, 17, 17, 0.25);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
 @layer components {
   .header-link {
     @apply text-gray-400 cursor-pointer text-base md:text-lg hover:text-white transition-all ease-in-out;
@@ -80,4 +69,22 @@
   .loading-parent {
     @apply fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-70 z-50 flex justify-center items-center;
   }
+}
+
+/* meeting glassmorphism style */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* clerk user button to make the button bigger */
+.cl-avatarBox {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/* react datepicker so the datepicker stretches the full width */
+.react-datepicker-wrapper {
+  width: 100%;
 }

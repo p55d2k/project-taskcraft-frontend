@@ -1,16 +1,18 @@
+"use client";
+
 import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useEffect, useState } from "react";
-import useAuth from "./useAuth";
+import { useUser } from "@clerk/nextjs";
 
 export const useGetCalls = () => {
   const [calls, setCalls] = useState<Call[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const client = useStreamVideoClient();
-  const { user } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     (async () => {
-      if (!client || !user?.uid) return;
+      if (!client || !user?.id) return;
 
       setIsLoading(true);
 
@@ -20,8 +22,8 @@ export const useGetCalls = () => {
           filter_conditions: {
             starts_at: { $exists: true },
             $or: [
-              { created_by_user_id: user.uid },
-              { members: { $in: [user.uid] } },
+              { created_by_user_id: user.id },
+              { members: { $in: [user.id] } },
             ],
           },
         });
@@ -34,7 +36,7 @@ export const useGetCalls = () => {
         setIsLoading(false);
       }
     })();
-  }, [client, user?.uid]);
+  }, [client, user?.username]);
 
   return {
     callRecordings: calls,

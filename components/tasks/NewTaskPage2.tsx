@@ -1,7 +1,10 @@
 import { kanit } from "@/utils/fonts";
-import { isOwner, isUserInProject } from "@/utils/users";
+import {
+  isUserOwnerOfProject,
+  isUserMemberOfProject,
+  isUserMentorOfProject,
+} from "@/utils/users";
 
-import useAuth from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
 
 import { IoIosArrowBack } from "react-icons/io";
@@ -31,34 +34,46 @@ const NewTaskPage2 = ({
   const { projectId } = useData();
 
   useEffect(() => {
-    if (!trySubmit) return;
-
     (async () => {
-      if (assignedTo.length === 0) {
-        setError("Please assign this task to at least one member");
+      try {
+        if (!trySubmit) return;
+
+        if (assignedTo.length === 0) {
+          setError("Please assign this task to at least one member");
+          throw new Error("No members assigned");
+        }
+
+        for (const assignee of assignedTo) {
+          if (assignee === "") {
+            setError("Please fill in all the fields");
+            throw new Error("Empty field");
+          }
+
+          const isMemberOrOwner =
+            (await isUserMemberOfProject(assignee, projectId)) ||
+            (await isUserOwnerOfProject(assignee, projectId));
+
+          if (!isMemberOrOwner) {
+            const isMentor = await isUserMentorOfProject(assignee, projectId);
+
+            if (!isMentor) {
+              setError(`User with ID ${assignee} is not in the project`);
+              throw new Error("User not in project");
+            } else {
+              setError(
+                `User with ID ${assignee} is a mentor and cannot be assigned to tasks`
+              );
+              throw new Error("User is a mentor");
+            }
+          }
+        }
+
+        setNext();
+      } catch (error) {
+        console.error(error);
+      } finally {
         setTrySubmit(false);
-        return;
       }
-
-      for (const assignee of assignedTo) {
-        if (assignee === "") {
-          setError("Please fill in all the fields");
-          setTrySubmit(false);
-          return;
-        }
-
-        const exists =
-          (await isUserInProject(assignee, projectId)) ||
-          (await isOwner(assignee, projectId));
-        if (!exists) {
-          setError(`User with ID ${assignee} is not in the project`);
-          setTrySubmit(false);
-          return;
-        }
-      }
-
-      setTrySubmit(false);
-      setNext();
     })();
   }, [trySubmit]);
 
@@ -108,10 +123,7 @@ const NewTaskPage2 = ({
         </div>
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
-          <button
-            className="button-danger creation-buttons"
-            onClick={goBack}
-          >
+          <button className="button-danger creation-buttons" onClick={goBack}>
             <IoIosArrowBack size={20} />
             Back
           </button>

@@ -10,13 +10,12 @@ import { navigate } from "@/actions/navigate";
 import { getUserProjects } from "@/utils/users";
 import { kanit } from "@/utils/fonts";
 
-import useAuth from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 import useData from "@/hooks/useData";
 
 import { UserProjectStatus } from "@/types";
 
 import { GoGitPullRequest } from "react-icons/go";
-import { MdAccountCircle } from "react-icons/md";
 import { IoAdd } from "react-icons/io5";
 import toast from "react-hot-toast";
 
@@ -27,7 +26,7 @@ import ProjectCard from "@/components/project/Card";
 import Loading from "@/components/Loading";
 
 const ProjectsPage = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
   const { setProjectId } = useData();
 
   const [clickedProjectId, setClickedProjectId] = useState<string | null>(null);
@@ -40,9 +39,9 @@ const ProjectsPage = () => {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!trySwitch || !clickedProjectId) return;
+    (async () => {
+      if (!trySwitch || !clickedProjectId) return;
 
-    const fetchData = async () => {
       setLoading(true);
 
       try {
@@ -62,37 +61,32 @@ const ProjectsPage = () => {
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchData();
+    })();
   }, [trySwitch, clickedProjectId]);
 
   useEffect(() => {
-    if (!refresh) return;
-
-    async function getProjects() {
-      if (!user) return;
+    (async () => {
+      if (!user || !refresh) return;
 
       setLoading(true);
 
-      const projects = await getUserProjects(user?.uid);
+      try {
+        const projects = await getUserProjects(user?.username!);
 
-      if (projects === null) {
-        toast.error("Failed to fetch projects. Please try again later.");
+        if (projects === null)
+          throw new Error("Projects fetch failed: null returned");
 
+        setProjects(projects);
+      } catch (error) {
         setProjects([]);
+
+        toast.error("Failed to fetch projects. Please try again later.");
+        throw error;
+      } finally {
         setLoading(false);
         setRefresh(false);
-
-        return;
       }
-
-      setProjects(projects);
-      setLoading(false);
-      setRefresh(false);
-    }
-
-    getProjects();
+    })();
   }, [refresh, user]);
 
   return (
@@ -148,13 +142,6 @@ const ProjectsPage = () => {
           >
             <GoGitPullRequest size={24} />
             <h2 className="font-semibold text-xl">Join project</h2>
-          </Link>
-          <Link
-            href="/account"
-            className="project-card bg-dark-1 flex-row gap-1"
-          >
-            <MdAccountCircle size={26} />
-            <h2 className="font-semibold text-xl">Account</h2>
           </Link>
 
           {projects?.map((project, index) => (

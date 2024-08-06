@@ -1,6 +1,7 @@
 import { kanit } from "@/utils/fonts";
 import { doesUserExist } from "@/utils/users";
-import useAuth from "@/hooks/useAuth";
+
+import { useUser } from "@clerk/nextjs";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { IoAdd } from "react-icons/io5";
@@ -8,7 +9,7 @@ import { IoAdd } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-interface NewTaskPage2Props {
+interface NewProjectPage2Props {
   members: string[];
   error: string;
   setMembers: (name: string[]) => void;
@@ -17,16 +18,16 @@ interface NewTaskPage2Props {
   setNext: () => void;
 }
 
-const NewTaskPage2 = ({
+const NewProjectPage2 = ({
   members,
   error,
   setMembers,
   setError,
   goBack,
   setNext,
-}: NewTaskPage2Props) => {
+}: NewProjectPage2Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
-  const { user } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     if (!trySubmit) return;
@@ -47,13 +48,15 @@ const NewTaskPage2 = ({
 
         const exists = await doesUserExist(member);
         if (!exists) {
-          setError(`User with ID "${member}" does not exist`);
+          setError(`User with username "${member}" does not exist`);
           setTrySubmit(false);
           return;
         }
 
-        if (member === user?.uid) {
-          setError("You cannot add yourself to the project");
+        if (member === user?.username) {
+          setError(
+            "You cannot add yourself to the project as a member if you are the owner"
+          );
           setTrySubmit(false);
           return;
         }
@@ -80,8 +83,8 @@ const NewTaskPage2 = ({
         <p
           className={`md:text-lg xl:text-xl font-extralight text-center lg:text-left lg:pl-1 ${kanit.className}`}
         >
-          Please enter the user IDs of the members you would like to add to this
-          project.
+          Please enter the usernames of the members you would like to add to
+          this project.
         </p>
         <div className="flex flex-col space-y-2 mt-3 w-full">
           {members.map((member, index) => (
@@ -151,4 +154,4 @@ const NewTaskPage2 = ({
   );
 };
 
-export default NewTaskPage2;
+export default NewProjectPage2;

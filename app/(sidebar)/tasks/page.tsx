@@ -1,7 +1,7 @@
 "use client";
 
 import useData from "@/hooks/useData";
-import useAuth from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 
 import {
   getCompletedTasksAssignedToUser,
@@ -28,7 +28,7 @@ import toast from "react-hot-toast";
 const TasksViewPage = () => {
   const { projectData, projectId } = useData();
 
-  const { user } = useAuth();
+  const { user } = useUser();
 
   const [loading, setLoading] = useRecoilState(loadingAtom);
   const [role, setRole] = useState<Role | undefined>(undefined);
@@ -49,17 +49,17 @@ const TasksViewPage = () => {
         setLoading(true);
 
         try {
-          const fetchedRole = await getUserRoleInProject(user.uid, projectId);
-          const fetchedTasks = await getTasksAssignedToUser(
-            user.uid,
+          const fetchedRole = await getUserRoleInProject(
+            user.username!,
             projectId
           );
+          const fetchedTasks = await getTasksAssignedToUser(user.username!, projectId);
           const fetchedCompletedTasks = await getCompletedTasksAssignedToUser(
-            user.uid,
+            user.username!,
             projectId
           );
           const fetchedAssignedTasks = await getTasksAssignedByUser(
-            user.uid,
+            user.username!,
             projectId
           );
 

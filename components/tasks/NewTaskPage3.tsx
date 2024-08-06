@@ -5,13 +5,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { createTheme, ThemeProvider } from "@mui/material";
-
-import dayjs, { Dayjs } from "dayjs";
+import ReactDatePicker from "react-datepicker";
 
 interface NewTaskPage3Props {
   date: number;
@@ -22,12 +16,6 @@ interface NewTaskPage3Props {
   setNext: () => void;
 }
 
-const lightTheme = createTheme({
-  palette: {
-    mode: "light", // Switches the theme to light mode
-  },
-});
-
 const NewTaskPage3 = ({
   date,
   setDate,
@@ -37,25 +25,17 @@ const NewTaskPage3 = ({
   setNext,
 }: NewTaskPage3Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
-  const [rawDate, setRawDate] = useState<Dayjs | null>(dayjs(date));
 
   useEffect(() => {
     if (!trySubmit) return;
 
     (async () => {
-      if (!rawDate) return;
-      const now = dayjs();
+      if (!date) return;
 
-      if (rawDate.isBefore(now)) {
-        setError("Please enter a date in the future.");
-        setTrySubmit(false);
-        return;
-      }
-
-      setDate(rawDate.toDate().getTime());
+      if (date < Date.now()) setError("Please enter a date in the future.");
+      else setNext();
 
       setTrySubmit(false);
-      setNext();
     })();
   }, [trySubmit]);
 
@@ -75,40 +55,19 @@ const NewTaskPage3 = ({
         >
           Please enter the due date for this task.
         </p>
-        <ThemeProvider theme={lightTheme}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              className="w-full !hidden lg:!flex"
-              slotProps={{
-                textField: {
-                  sx: {
-                    backgroundColor: "#fff",
-                    outline: "none",
-                    borderRadius: "0.25rem",
-                  },
-                },
-              }}
-              format="DD/MM/YYYY"
-              value={rawDate}
-              onChange={(date) => setRawDate(date)}
-            />
-            <MobileDatePicker
-              className="w-full !flex lg:!hidden"
-              slotProps={{
-                textField: {
-                  sx: {
-                    backgroundColor: "#fff",
-                    outline: "none",
-                    borderRadius: "0.25rem",
-                  },
-                },
-              }}
-              format="DD/MM/YYYY"
-              value={rawDate}
-              onChange={(date) => setRawDate(date)}
-            />
-          </LocalizationProvider>
-        </ThemeProvider>
+        <ReactDatePicker
+          selected={new Date(date)}
+          onChange={(newdate) => {
+            if (!newdate) return;
+            setDate(newdate.getTime());
+          }}
+          showTimeSelect
+          timeFormat="HH:mm"
+          timeIntervals={15}
+          timeCaption="time"
+          dateFormat="MMMM d, yyyy h:mm aa"
+          className="!w-full rounded bg-dark-3 p-2 focus:outline-none"
+        />
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
           <button className="button-danger creation-buttons" onClick={goBack}>

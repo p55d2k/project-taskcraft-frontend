@@ -4,7 +4,7 @@ import { isUserPartOfProject } from "@/utils/users";
 
 import { useEffect, useState } from "react";
 
-export const useGetCallById = (id: string, userId: string) => {
+export const useGetCallById = (id: string, username: string) => {
   const [call, setCall] = useState<Call>();
   const [isCallLoading, setIsCallLoading] = useState(true);
 
@@ -18,11 +18,8 @@ export const useGetCallById = (id: string, userId: string) => {
         filter_conditions: { id },
       });
 
-      const partOfProject = await isUserPartOfProject(userId, id);
-
-      if (calls.length > 0 && partOfProject) {
-        setCall(calls[0]);
-      }
+      const isPartOfProject = await isUserPartOfProject(username, id);
+      if (calls.length > 0 && isPartOfProject) setCall(calls[0]);
 
       setIsCallLoading(false);
     })();

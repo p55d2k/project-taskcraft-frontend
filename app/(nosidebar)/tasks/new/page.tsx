@@ -13,7 +13,7 @@ import { generateUniqueId } from "@/utils/unique";
 import { createTask } from "@/utils/tasks";
 import { navigate } from "@/actions/navigate";
 
-import useAuth from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 import useData from "@/hooks/useData";
 
 import { TaskData, Role } from "@/types";
@@ -22,7 +22,7 @@ import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";
 
 const NewTask = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
   const { projectData, projectId } = useData();
 
   if (!projectData || !projectId) navigate("/projects");
@@ -43,7 +43,7 @@ const NewTask = () => {
       setLoading(true);
 
       const role: Role | undefined = await getUserRoleInProject(
-        user.uid,
+        user.username!,
         projectId
       );
 
@@ -69,7 +69,7 @@ const NewTask = () => {
         priority: priority,
 
         assignedTo: assignedTo,
-        assignedBy: user.uid,
+        assignedBy: user.username!,
 
         createdAt: Date.now(),
         completedAt: 0,

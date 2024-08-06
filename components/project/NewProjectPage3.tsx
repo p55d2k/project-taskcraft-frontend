@@ -1,6 +1,7 @@
 import { kanit } from "@/utils/fonts";
 import { doesUserExist } from "@/utils/users";
-import useAuth from "@/hooks/useAuth";
+
+import { useUser } from "@clerk/nextjs";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { IoAdd } from "react-icons/io5";
@@ -8,7 +9,7 @@ import { IoAdd } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-interface NewTaskPage3Props {
+interface NewProjectPage3Props {
   mentors: string[];
   members: string[];
   error: string;
@@ -18,7 +19,7 @@ interface NewTaskPage3Props {
   setNext: () => void;
 }
 
-const NewTaskPage3 = ({
+const NewProjectPage3 = ({
   mentors,
   members,
   error,
@@ -26,9 +27,9 @@ const NewTaskPage3 = ({
   setError,
   goBack,
   setNext,
-}: NewTaskPage3Props) => {
+}: NewProjectPage3Props) => {
   const [trySubmit, setTrySubmit] = useState(false);
-  const { user } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     if (!trySubmit) return;
@@ -54,7 +55,7 @@ const NewTaskPage3 = ({
           return;
         }
 
-        if (mentor === user?.uid) {
+        if (mentor === user?.username) {
           setError("You cannot mentor yourself");
           setTrySubmit(false);
           return;
@@ -82,7 +83,7 @@ const NewTaskPage3 = ({
         <p
           className={`md:text-lg xl:text-xl font-extralight text-center lg:text-left lg:pl-1 ${kanit.className}`}
         >
-          Please enter the user IDs of the people you would like to mentor this
+          Please enter the usernames of the people you would like to mentor this
           project. Alternatively, you can leave this blank.
         </p>
         <div className="flex flex-col space-y-2 mt-3 w-full">
@@ -153,4 +154,4 @@ const NewTaskPage3 = ({
   );
 };
 
-export default NewTaskPage3;
+export default NewProjectPage3;

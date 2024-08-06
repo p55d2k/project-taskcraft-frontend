@@ -4,7 +4,6 @@ import { db } from "@/firebase";
 import { ChatMessage } from "@/types";
 
 export const sendMessage = async (
-  from: string, // uid
   name: string,
   message: string,
   projectId: string // pid
@@ -13,7 +12,6 @@ export const sendMessage = async (
     const chatRef = ref(db, `projects/${projectId}/chat`);
 
     const newMessage: ChatMessage = {
-      id: from,
       name: name,
       message: message,
       timestamp: Date.now(),
