@@ -4,6 +4,7 @@ import useData from "@/hooks/useData";
 import { useUser } from "@clerk/nextjs";
 
 import {
+  getAllTasks,
   getCompletedTasksAssignedToUser,
   getTasksAssignedByUser,
   getTasksAssignedToUser,
@@ -42,6 +43,7 @@ const TasksViewPage = () => {
   const [tasksAssignedByUser, setTasksAssignedByUser] = useState<TaskData[]>(
     []
   );
+  const [allOtherTasks, setAllOtherTasks] = useState<TaskData[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -53,7 +55,10 @@ const TasksViewPage = () => {
             user.username!,
             projectId
           );
-          const fetchedTasks = await getTasksAssignedToUser(user.username!, projectId);
+          const fetchedTasks = await getTasksAssignedToUser(
+            user.username!,
+            projectId
+          );
           const fetchedCompletedTasks = await getCompletedTasksAssignedToUser(
             user.username!,
             projectId
@@ -62,11 +67,21 @@ const TasksViewPage = () => {
             user.username!,
             projectId
           );
+          const allOtherTasks = await getAllTasks(projectId);
 
           setRole(fetchedRole);
+
           setTasksAssignedToUser(fetchedTasks);
           setTasksCompletedByUser(fetchedCompletedTasks);
           setTasksAssignedByUser(fetchedAssignedTasks);
+          setAllOtherTasks(
+            allOtherTasks.filter(
+              (task) =>
+                !fetchedTasks.includes(task) &&
+                !fetchedCompletedTasks.includes(task) &&
+                !fetchedAssignedTasks.includes(task)
+            )
+          );
 
           await updateTasksIfOverdue(projectId);
         } catch (error) {
@@ -98,7 +113,7 @@ const TasksViewPage = () => {
 
         <div className="w-full h-full flex flex-col space-y-4 pt-4">
           <div className="flex flex-row justify-between items-center">
-            <p className="lg:text-lg">
+            <p className="lg:text-lg pr-2">
               {role === "member"
                 ? "You are a member, and cannot create or modify tasks."
                 : `You are ${
@@ -110,7 +125,7 @@ const TasksViewPage = () => {
                 href={"/tasks/new"}
                 className={`${
                   loading ? "button-disabled" : "button-primary"
-                } !w-auto !py-2`}
+                } !w-auto !py-2 text-center`}
               >
                 Create Task
               </Link>
@@ -166,6 +181,24 @@ const TasksViewPage = () => {
               <div className="flex flex-col items-center justify-center h-48 md:h-60 lg:h-72">
                 <p className="text-[gray] text-lg">
                   You have not assigned any tasks.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col p-4 md:px-6 rounded space-y-2 bg-[#141414] divide-y-2 divide-[gray]">
+            <h2 className="text-xl md:text-2xl">All Other Tasks</h2>
+
+            {allOtherTasks?.length ? (
+              <div className="flex flex-col space-y-2 pt-2">
+                {allOtherTasks.map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-48 md:h-60 lg:h-72">
+                <p className="text-[gray] text-lg">
+                  There are no other tasks in this project.
                 </p>
               </div>
             )}

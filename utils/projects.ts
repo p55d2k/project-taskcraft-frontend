@@ -197,6 +197,7 @@ export const addMemberToProject = async (
     currentMembers.push(name);
 
     await set(ref(db, `projects/${pid}/members`), currentMembers);
+    await set(ref(db, `projects/${pid}/updateDocumentAccess`), true);
 
     await updateUserProjects(name, "member", projectData);
   } catch (error) {
@@ -233,6 +234,7 @@ export const addMentorToProject = async (
     currentMentors.push(name);
 
     await set(ref(db, `projects/${pid}/mentors`), currentMentors);
+    await set(ref(db, `projects/${pid}/updateDocumentAccess`), true);
 
     await updateUserProjects(name, "mentor", projectData);
   } catch (error) {

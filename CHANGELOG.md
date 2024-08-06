@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 06-08-2024
+
+Finally, the full release! 🎉
+Tomorrow's project work evaluation - so we're just in time!
+
+### Added
+
+- Document collaboration
+- You can see all other tasks in the tasks page now
+- Mobile responsiveness! (We've all been waiting for this one)
+
+### Fixed
+
+- Paraphrased text is now displayed more user-friendly
+- Message in Chat Page to say "Type a message" instead of "Ask anything"
+
 ## [1.0.0] - 06-08-2024
 
 I take my words back - this isn't the full release. But it's close!

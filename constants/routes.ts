@@ -16,4 +16,5 @@ export const needProjectRoutes = [
   "/dashboard",
   "/recordings",
   "/writing",
+  "/docs",
 ];

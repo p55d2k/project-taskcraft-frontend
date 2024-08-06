@@ -102,7 +102,7 @@ const ChatPage = () => {
         <div className="w-full flex-none flex flex-row items-center justify-end pb-5 md:pb-8 lg:pb-10">
           <input
             type="text"
-            placeholder="Ask anything..."
+            placeholder="Type a message..."
             className="input-field h-auto w-full mb-1"
             value={message}
             onChange={(e) => setMessage(e.target.value)}

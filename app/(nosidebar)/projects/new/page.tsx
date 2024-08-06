@@ -45,6 +45,7 @@ const NewProject = () => {
 
         chat: [],
 
+        updateDocumentAccess: false,
         isLocked: false,
 
         createdAt: Date.now(),

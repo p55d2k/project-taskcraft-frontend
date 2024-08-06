@@ -98,7 +98,7 @@ export const getUserProjectStatus = async (
     if (snapshot.exists()) {
       const projects: UserProjectStatus[] = snapshot.val();
       return (
-        projects.find((project) => project?.id || "" === projectId) || null
+        projects.find((project) => project?.id! === projectId) || null
       );
     } else {
       return null;

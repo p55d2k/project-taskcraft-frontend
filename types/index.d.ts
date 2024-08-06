@@ -43,6 +43,7 @@ export interface ProjectData {
 
   createdAt: number;
 
+  updateDocumentAccess: boolean;
   isLocked: boolean;
   // status: "locked" | "request" | "open";
 

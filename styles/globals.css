@@ -84,6 +84,13 @@
   height: 2.75rem;
 }
 
+@media (max-width: 768px) {
+  .cl-avatarBox {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
 /* react datepicker so the datepicker stretches the full width */
 .react-datepicker-wrapper {
   width: 100%;

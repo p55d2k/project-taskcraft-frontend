@@ -17,7 +17,6 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { paraphrase } from "@/utils/paraphrase";
-import { OpenAIResponse } from "@/openai";
 
 const ParapharasePage = () => {
   const [loading, setLoading] = useRecoilState(loadingAtom);
@@ -86,10 +85,14 @@ const ParapharasePage = () => {
                   Paraphrased Text
                 </DialogTitle>
                 <DialogDescription className="text-sm md:text-base pb-2">
-                  {response
-                    ? `Generated Text: ${response}`
-                    : "No response generated."}
+                  {response?.length} characters
                 </DialogDescription>
+
+                <Textarea
+                  className="w-full h-96 bg-dark-1 focus:ring-0 focus:outline-none"
+                  value={response || ""}
+                  readOnly
+                />
 
                 <button
                   className="button-safe py-2"
