@@ -2,7 +2,6 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
-import { getAuth } from "firebase/auth";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -25,7 +24,6 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const storage = getStorage(app, "gs://taskcraft-backend-1.appspot.com");
 const db = getDatabase(app);
-const auth = getAuth();
 
 export default app;
-export { auth, db, storage };
+export { db, storage };

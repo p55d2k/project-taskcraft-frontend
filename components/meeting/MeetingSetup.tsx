@@ -1,23 +1,25 @@
 "use client";
 
-import { Call, DeviceSettings, VideoPreview } from "@stream-io/video-react-sdk";
+import {
+  DeviceSettings,
+  useCall,
+  VideoPreview,
+} from "@stream-io/video-react-sdk";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { notFound, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import useData from "@/hooks/useData";
 
 const MeetingSetup = ({
   setIsSetupComplete,
-  call,
 }: {
   setIsSetupComplete: (value: boolean) => void;
-  call?: Call;
 }) => {
   const [isMicCamEnabled, setIsMicCamEnabled] = useState(false);
-  const router = useRouter();
-
+  
   const { projectData } = useData();
+  const call = useCall();
 
   useEffect(() => {
     if (isMicCamEnabled) {

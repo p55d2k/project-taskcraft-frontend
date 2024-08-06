@@ -22,17 +22,16 @@ export interface TaskData {
 }
 
 export interface UserData {
-  createdAt: number;
-  email: string;
   name: string;
-  ips: string[];
+  email: string;
+  imageUrl: string;
 
-  notifications: string[]; // the message
+  createdAt: number;
+
   projects: UserProjectStatus[];
 }
 
 export interface ChatMessage {
-  id: string; // uid
   name: string;
   message: string;
   timestamp: number;

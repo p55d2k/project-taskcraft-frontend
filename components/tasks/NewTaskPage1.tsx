@@ -41,7 +41,12 @@ const NewTaskPage1 = ({
             if (e.target.value.length <= 80) setDescription(e.target.value);
           }}
         />
-        <p className="text-gray-400 text-sm text-right pt-1">
+        <p
+          className={`text-sm text-right pt-1 ${
+            description.length > 80 ? "text-red-500" : "text-gray-400"
+          }
+          `}
+        >
           {description.length}/80
         </p>
 
@@ -87,7 +92,7 @@ const NewTaskPage1 = ({
 
       <div className="w-full lg:w-[85%] min-h-[50vh] sm:min-h-screen lg:h-auto -z-10 flex items-end justify-center">
         <Image
-          src="/imgs/7.png"
+          src="/imgs/catgirls/catgirl3.png"
           alt=""
           width={100}
           height={100}

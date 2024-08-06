@@ -20,12 +20,12 @@ import { useRecoilState } from "recoil";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-import useAuth from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 import useData from "@/hooks/useData";
 
 import { ProjectData, Role } from "@/types";
 
-import { doesUserExist, getUserRoleInProject, nameFromId } from "@/utils/users";
+import { doesUserExist, getUserRoleInProject } from "@/utils/users";
 import {
   addMemberToProject,
   addMentorToProject,
@@ -36,6 +36,7 @@ import {
   unlockProject,
 } from "@/utils/projects";
 import { navigate } from "@/actions/navigate";
+import { formatDate } from "@/lib/utils";
 
 const ProjectSettings = () => {
   const [loading, setLoading] = useRecoilState(loadingAtom);
@@ -46,44 +47,49 @@ const ProjectSettings = () => {
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<Role>();
 
-  const { user } = useAuth();
+  const { user } = useUser();
   const { projectData, projectId, setProjectData } = useData();
 
-  const [ownerName, setOwnerName] = useState<string>("");
-  const [memberNames, setMemberNames] = useState<string[]>([]);
-  const [mentorNames, setMentorNames] = useState<string[]>([]);
-
   const [deleteProjectDialog, setDeleteProjectDialog] = useState<string>("");
-  const [userIDToAddMember, setUserIDToAddMember] = useState<string>("");
-  const [userIDToAddMentor, setUserIDToAddMentor] = useState<string>("");
+  const [memberToAddName, setMemberToAddName] = useState<string>("");
+  const [mentorToAddName, setMentorToAddName] = useState<string>("");
 
   useEffect(() => {
-    if (saveProjectInfo) {
-      setLoading(true);
+    if (!saveProjectInfo) return;
 
-      if (projectName === "") {
-        toast.error("Project name cannot be empty", {
-          position: "top-right",
-        });
+    setLoading(true);
 
-        setSaveProjectInfo(false);
-        setLoading(false);
-        return;
-      }
-
-      setProjectData({
-        ...projectData,
-        name: projectName,
-      } as ProjectData);
-
-      setSaveProjectInfo(false);
-
-      toast.success("Project information saved successfully", {
+    if (projectName === "") {
+      toast.error("Project name cannot be empty", {
         position: "top-right",
       });
 
+      setSaveProjectInfo(false);
       setLoading(false);
+      return;
     }
+
+    if (projectName.length > 100) {
+      toast.error("Project name cannot be longer than 100 characters", {
+        position: "top-right",
+      });
+
+      setSaveProjectInfo(false);
+      setLoading(false);
+      return;
+    }
+
+    setProjectData({
+      ...projectData,
+      name: projectName,
+    } as ProjectData);
+
+    toast.success("Project information saved successfully", {
+      position: "top-right",
+    });
+
+    setSaveProjectInfo(false);
+    setLoading(false);
   }, [saveProjectInfo]);
 
   useEffect(() => {
@@ -93,27 +99,8 @@ const ProjectSettings = () => {
     setIsLocked(projectData.isLocked);
 
     (async () => {
-      const role = await getUserRoleInProject(user.uid, projectId);
+      const role = await getUserRoleInProject(user.username!, projectId);
       if (role) setUserRole(role);
-
-      if (projectData.owner) {
-        const name = await nameFromId(projectData.owner);
-        setOwnerName(name);
-      }
-
-      if (projectData.members?.length > 0) {
-        const names = await Promise.all(
-          projectData.members.map((id) => nameFromId(id))
-        );
-        setMemberNames(names);
-      }
-
-      if (projectData.mentors?.length > 0) {
-        const names = await Promise.all(
-          projectData.mentors.map((id) => nameFromId(id))
-        );
-        setMentorNames(names);
-      }
     })();
   }, [projectData]);
 
@@ -164,69 +151,69 @@ const ProjectSettings = () => {
   };
 
   const handleAddMember = async () => {
-    if (!userIDToAddMember) {
-      toast.error("User ID cannot be empty");
+    if (!memberToAddName) {
+      toast.error("Username cannot be empty");
       return;
     }
 
     try {
       setLoading(true);
 
-      const userExists = await doesUserExist(userIDToAddMember);
-
+      const userExists = await doesUserExist(memberToAddName);
       if (!userExists) {
         toast.error("User does not exist");
+        setMemberToAddName("");
+        setLoading(false);
         return;
       }
 
-      await addMemberToProject(projectId, userIDToAddMember);
-
-      const name = await nameFromId(userIDToAddMember);
-      setMemberNames([...memberNames, name]);
+      await addMemberToProject(projectId, memberToAddName);
 
       toast.success("Added member to project successfully");
     } catch (error) {
       toast.error("Failed to add member to project");
       console.error(error);
     } finally {
-      setUserIDToAddMember("");
+      setMemberToAddName("");
       setLoading(false);
     }
   };
 
   const handleAddMentor = async () => {
-    if (!userIDToAddMentor) {
-      toast.error("User ID cannot be empty");
+    if (!mentorToAddName) {
+      toast.error("Username cannot be empty");
       return;
     }
 
     try {
       setLoading(true);
 
-      const userExists = await doesUserExist(userIDToAddMentor);
-
+      const userExists = await doesUserExist(mentorToAddName);
       if (!userExists) {
         toast.error("User does not exist");
+        setMentorToAddName("");
+        setLoading(false);
         return;
       }
 
-      await addMentorToProject(projectId, userIDToAddMentor);
-
-      const name = await nameFromId(userIDToAddMentor);
-      setMentorNames([...mentorNames, name]);
+      await addMentorToProject(projectId, mentorToAddName);
 
       toast.success("Added mentor to project successfully");
     } catch (error) {
       toast.error("Failed to add mentor to project");
       console.error(error);
     } finally {
-      setUserIDToAddMentor("");
+      setMentorToAddName("");
       setLoading(false);
     }
   };
 
   return (
-    <DashboardWrapper loading={loading} pageName="Project Settings">
+    <DashboardWrapper
+      loading={loading}
+      pageName="Project Settings"
+      role={userRole}
+    >
       <div className="flex flex-col space-y-8 divide-y-2 divide-[gray] pt-4 md:pt-6">
         <section className="flex flex-col space-y-4">
           <h3 className="font-bold text-lg md:text-xl lg:text-2xl">
@@ -264,11 +251,7 @@ const ProjectSettings = () => {
               <Input
                 className="text-lg"
                 disabled
-                value={
-                  new Date(projectData?.createdAt!).toDateString() +
-                  " " +
-                  new Date(projectData?.createdAt!).toLocaleTimeString()
-                }
+                value={formatDate(projectData?.createdAt!)}
               />
             </label>
 
@@ -302,8 +285,7 @@ const ProjectSettings = () => {
             <div className="flex flex-col space-y-2 divide-y-2 divide-[gray]">
               <UserOptions
                 type="owner"
-                username={ownerName}
-                userID={projectData?.owner!}
+                username={projectData?.owner!}
                 projectID={projectId}
                 userRole={userRole || "member"}
                 setUserRole={setUserRole}
@@ -313,114 +295,125 @@ const ProjectSettings = () => {
 
           <div className="flex flex-col gap-2 rounded bg-[#1c1c1c] p-4">
             <h5 className="font-semibold md:text-lg lg:text-xl">
-              Members{" - "}
-              <Dialog>
-                <DialogTrigger className="text-sm md:text-base lg:text-lg text-purple-1 cursor-pointer hover:underline">
-                  (add members)
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle className="text-lg sm:text-xl md:text-2xl lg:text-3xl">
-                      Add a member
-                    </DialogTitle>
-                    <DialogDescription className="text-sm md:text-base pb-2">
-                      Add a member to this project by entering their user ID.
-                    </DialogDescription>
+              Members
+              {userRole !== "member" && !isLocked && (
+                <>
+                  {" - "}
+                  <Dialog>
+                    <DialogTrigger className="text-sm md:text-base lg:text-lg text-orange-1 cursor-pointer hover:underline">
+                      (add members)
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle className="text-lg sm:text-xl md:text-2xl lg:text-3xl">
+                          Add a member
+                        </DialogTitle>
+                        <DialogDescription className="text-sm md:text-base pb-2">
+                          Add a member to this project by entering their user
+                          ID.
+                        </DialogDescription>
 
-                    <Input
-                      className="text-lg"
-                      placeholder="User ID"
-                      value={userIDToAddMember}
-                      onChange={(e) => setUserIDToAddMember(e.target.value)}
-                    />
-                    <div className="h-1" />
+                        <Input
+                          className="text-lg"
+                          placeholder="Username"
+                          value={memberToAddName}
+                          onChange={(e) => setMemberToAddName(e.target.value)}
+                        />
+                        <div className="h-1" />
 
-                    <DialogClose
-                      className="button-primary py-2"
-                      onClick={handleAddMember}
-                    >
-                      Add Member
-                    </DialogClose>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+                        <DialogClose
+                          className="button-primary py-2"
+                          onClick={handleAddMember}
+                        >
+                          Add Member
+                        </DialogClose>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
             </h5>
 
             <div className="flex flex-col space-y-2 divide-y-2 divide-[gray]">
-              {memberNames.map((name, i) => (
-                <UserOptions
-                  key={i}
-                  type="member"
-                  username={name}
-                  userID={projectData?.members![i] || ""}
-                  projectID={projectId}
-                  userRole={userRole || "member"}
-                  setUserRole={setUserRole}
-                  className={i !== 0 ? "pt-2" : ""}
-                />
-              ))}
+              {(!projectData?.members || projectData?.members.length === 0) && (
+                <p className="text-[gray] text-lg">
+                  No members in this project
+                </p>
+              )}
+              {projectData?.members &&
+                projectData?.members.map((name, index) => (
+                  <UserOptions
+                    key={index}
+                    type="member"
+                    username={name}
+                    projectID={projectId}
+                    userRole={userRole || "member"}
+                    setUserRole={setUserRole}
+                    className={index !== 0 ? "pt-2" : ""}
+                  />
+                ))}
             </div>
           </div>
 
           <div className="flex flex-col gap-2 rounded bg-[#1c1c1c] p-4">
             <h5 className="font-semibold md:text-lg lg:text-xl">
-              Mentors{" - "}
-              <Dialog>
-                <DialogTrigger className="text-sm md:text-base lg:text-lg text-yellow-1 cursor-pointer hover:underline">
-                  (add mentors)
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle className="text-lg sm:text-xl md:text-2xl lg:text-3xl">
-                      Add a mentor
-                    </DialogTitle>
-                    <DialogDescription className="text-sm md:text-base pb-2">
-                      Add a mentor to this project by entering their user ID.
-                    </DialogDescription>
+              Mentors{" "}
+              {userRole === "owner" && !isLocked && (
+                <>
+                  {" - "}
+                  <Dialog>
+                    <DialogTrigger className="text-sm md:text-base lg:text-lg text-yellow-1 cursor-pointer hover:underline">
+                      (add mentors)
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle className="text-lg sm:text-xl md:text-2xl lg:text-3xl">
+                          Add a mentor
+                        </DialogTitle>
+                        <DialogDescription className="text-sm md:text-base pb-2">
+                          Add a mentor to this project by entering their user
+                          ID.
+                        </DialogDescription>
 
-                    <Input
-                      className="text-lg"
-                      placeholder="User ID"
-                      value={userIDToAddMentor}
-                      onChange={(e) => setUserIDToAddMentor(e.target.value)}
-                    />
-                    <div className="h-1" />
+                        <Input
+                          className="text-lg"
+                          placeholder="Username"
+                          value={mentorToAddName}
+                          onChange={(e) => setMentorToAddName(e.target.value)}
+                        />
+                        <div className="h-1" />
 
-                    <DialogClose
-                      className="button-primary py-2"
-                      onClick={handleAddMentor}
-                    >
-                      Add Mentor
-                    </DialogClose>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+                        <DialogClose
+                          className="button-primary py-2"
+                          onClick={handleAddMentor}
+                        >
+                          Add Mentor
+                        </DialogClose>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
             </h5>
 
             <div className="flex flex-col space-y-2 divide-y-2 divide-[gray]">
-              {mentorNames.length === 0 && (
+              {(!projectData?.mentors || projectData?.mentors.length === 0) && (
                 <p className="text-[gray] text-lg">
                   No mentors in this project
                 </p>
               )}
-              {mentorNames.map((name, i) => (
-                <UserOptions
-                  key={i}
-                  type="mentor"
-                  username={name}
-                  userID={
-                    projectData?.mentors && i < projectData.mentors.length
-                      ? projectData.mentors[i]
-                      : ""
-                  }
-                  projectID={projectId}
-                  userRole={userRole || "member"}
-                  setUserRole={setUserRole}
-                  mentorNames={mentorNames}
-                  setMentorNames={setMentorNames}
-                  className={i !== 0 ? "pt-2" : ""}
-                />
-              ))}
+              {projectData?.mentors &&
+                projectData.mentors.map((name, index) => (
+                  <UserOptions
+                    key={index}
+                    type="mentor"
+                    username={name}
+                    projectID={projectId}
+                    userRole={userRole || "member"}
+                    setUserRole={setUserRole}
+                    className={index !== 0 ? "pt-2" : ""}
+                  />
+                ))}
             </div>
           </div>
         </section>
@@ -515,7 +508,7 @@ const ProjectSettings = () => {
                   className="button-danger !w-auto"
                   onClick={async () => {
                     if (userRole === "member") {
-                      await memberLeaveProject(projectId, user?.uid!)
+                      await memberLeaveProject(projectId, user?.username!)
                         .then(() => {
                           toast.success("Left project successfully");
                           navigate("/projects");
@@ -525,7 +518,7 @@ const ProjectSettings = () => {
                           toast.error("Failed to leave project");
                         });
                     } else {
-                      await mentorLeaveProject(projectId, user?.uid!)
+                      await mentorLeaveProject(projectId, user?.username!)
                         .then(() => {
                           toast.success("Left project successfully");
                           navigate("/projects");

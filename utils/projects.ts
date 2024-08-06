@@ -4,7 +4,7 @@ import { ref, get, child, set } from "firebase/database";
 import { db } from "@/firebase";
 
 import { ProjectData, Role, UserProjectStatus } from "@/types";
-import { getUserProjects, setUserProjects } from "./users";
+import { getUserProjects, isUserPartOfProject, setUserProjects } from "./users";
 
 export const hasMentors = async (pid: string): Promise<boolean> => {
   try {
@@ -87,12 +87,12 @@ export const getUsersPartOfProject = async (pid: string): Promise<string[]> => {
 };
 
 export const updateUserProjects = async (
-  uid: string,
+  name: string,
   role: Role,
   projectData: ProjectData
 ) => {
   try {
-    const snapshot = await get(child(ref(db), `users/${uid}/projects`));
+    const snapshot = await get(child(ref(db), `users/${name}/projects`));
 
     let userProjects: UserProjectStatus[];
 
@@ -108,7 +108,7 @@ export const updateUserProjects = async (
       role: role,
     });
 
-    await set(ref(db, `users/${uid}/projects`), userProjects);
+    await set(ref(db, `users/${name}/projects`), userProjects);
   } catch (error) {
     console.error(error);
     throw error;
@@ -171,7 +171,7 @@ export const createProject = async (
 
 export const addMemberToProject = async (
   pid: string,
-  uid: string
+  name: string
 ): Promise<void> => {
   try {
     const projectData = await getProject(pid);
@@ -188,16 +188,17 @@ export const addMemberToProject = async (
       projectData.members = [];
     }
 
-    if (projectData.members.includes(uid)) {
-      throw new Error("User is already a member of the project");
+    const inProject = await isUserPartOfProject(name, pid);
+    if (inProject) {
+      throw new Error("User is already a part of the project");
     }
 
     const currentMembers = projectData.members;
-    currentMembers.push(uid);
+    currentMembers.push(name);
 
     await set(ref(db, `projects/${pid}/members`), currentMembers);
 
-    await updateUserProjects(uid, "member", projectData);
+    await updateUserProjects(name, "member", projectData);
   } catch (error) {
     console.error(error);
     throw new Error("Failed to add member to project");
@@ -206,7 +207,7 @@ export const addMemberToProject = async (
 
 export const addMentorToProject = async (
   pid: string,
-  uid: string
+  name: string
 ): Promise<void> => {
   try {
     const projectData = await getProject(pid);
@@ -223,16 +224,17 @@ export const addMentorToProject = async (
       projectData.mentors = [];
     }
 
-    if (projectData.mentors.includes(uid)) {
-      throw new Error("User is already a mentor of the project");
+    const inProject = await isUserPartOfProject(name, pid);
+    if (inProject) {
+      throw new Error("User is already a part of the project");
     }
 
     const currentMentors = projectData.mentors;
-    currentMentors.push(uid);
+    currentMentors.push(name);
 
     await set(ref(db, `projects/${pid}/mentors`), currentMentors);
 
-    await updateUserProjects(uid, "mentor", projectData);
+    await updateUserProjects(name, "mentor", projectData);
   } catch (error) {
     console.error(error);
     throw new Error("Failed to add mentor to project");
@@ -311,7 +313,7 @@ export const getOwner = async (pid: string): Promise<string> => {
 
 export const memberLeaveProject = async (
   pid: string,
-  uid: string,
+  name: string,
   forceLeave?: boolean
 ): Promise<void> => {
   try {
@@ -325,7 +327,7 @@ export const memberLeaveProject = async (
       throw new Error("Project is locked");
     }
 
-    if (!projectData.members.includes(uid)) {
+    if (!projectData.members.includes(name)) {
       throw new Error("User is not a member of the project");
     }
 
@@ -333,23 +335,23 @@ export const memberLeaveProject = async (
       throw new Error("There cannot be 0 members in a project");
     }
 
-    const userProjects: UserProjectStatus[] = await getUserProjects(uid);
+    const userProjects: UserProjectStatus[] = await getUserProjects(name);
     const index = userProjects.findIndex((project) => project.id === pid);
 
     if (index > -1) {
       userProjects.splice(index, 1);
-      setUserProjects(uid, userProjects);
+      setUserProjects(name, userProjects);
     } else {
       throw new Error("User does not have project in their projects");
     }
 
-    if (projectData.owner === uid) {
+    if (projectData.owner === name) {
       throw new Error("Owner cannot leave project");
     }
 
     await set(
       ref(db, `projects/${pid}/members`),
-      projectData.members.filter((member) => member !== uid)
+      projectData.members.filter((member) => member !== name)
     );
   } catch (error) {
     console.error(error);
@@ -359,7 +361,7 @@ export const memberLeaveProject = async (
 
 export const mentorLeaveProject = async (
   pid: string,
-  uid: string
+  name: string
 ): Promise<void> => {
   try {
     const projectData = await getProject(pid);
@@ -372,23 +374,23 @@ export const mentorLeaveProject = async (
       throw new Error("Project is locked");
     }
 
-    if (!projectData.mentors.includes(uid)) {
+    if (!projectData.mentors.includes(name)) {
       throw new Error("User is not a mentor of the project");
     }
 
-    const userProjects: UserProjectStatus[] = await getUserProjects(uid);
+    const userProjects: UserProjectStatus[] = await getUserProjects(name);
     const index = userProjects.findIndex((project) => project.id === pid);
 
     if (index > -1) {
       userProjects.splice(index, 1);
-      setUserProjects(uid, userProjects);
+      setUserProjects(name, userProjects);
     } else {
       throw new Error("User does not have project in their projects");
     }
 
     await set(
       ref(db, `projects/${pid}/mentors`),
-      projectData.mentors.filter((mentor) => mentor !== uid)
+      projectData.mentors.filter((mentor) => mentor !== name)
     );
   } catch (error) {
     console.error(error);

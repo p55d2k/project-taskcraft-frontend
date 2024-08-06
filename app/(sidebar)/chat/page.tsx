@@ -1,6 +1,6 @@
 "use client";
 
-import useAuth from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 import useData from "@/hooks/useData";
 
 import { sendMessage } from "@/utils/chat";
@@ -18,9 +18,9 @@ import { loadingAtom } from "@/atoms/loadingAtom";
 import { ChatMessage } from "@/types";
 
 const ChatPage = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
 
-  const { projectData, projectId, userData } = useData();
+  const { projectData, projectId } = useData();
 
   const [message, setMessage] = useState<string>("");
   const [attemptSendMessage, setAttemptSendMessage] = useState<boolean>(false);
@@ -30,13 +30,13 @@ const ChatPage = () => {
   const [conversation, setConversation] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
-    if (!attemptSendMessage || !user || !userData || loading) return;
+    if (!attemptSendMessage || !user || loading) return;
 
     (async () => {
       setLoading(true);
 
       try {
-        await sendMessage(user.uid, userData.name, message, projectId);
+        await sendMessage(user?.username!, message, projectId);
         setMessage("");
       } catch (error) {
         toast.error("Error sending message");
@@ -68,33 +68,35 @@ const ChatPage = () => {
             </div>
           )}
 
-          {conversation.toReversed().map((message, index) => {
-            const isUser = message.id === user?.uid;
+          <div className="space-y-2">
+            {conversation.map((message, index) => {
+              const isUser = message.name === user?.username;
 
-            return (
-              <div
-                key={index}
-                className={`flex flex-col space-y-1 ${
-                  isUser ? "items-end text-right" : "items-start text-left"
-                }`}
-              >
-                <p
-                  className={`text-sm ${
-                    isUser ? "text-gray-500" : "text-gray-200"
+              return (
+                <div
+                  key={index}
+                  className={`flex flex-col space-y-1 ${
+                    isUser ? "items-end text-right" : "items-start text-left"
                   }`}
                 >
-                  {isUser ? "You" : message.name}
-                </p>
-                <p
-                  className={`text-lg ${
-                    isUser ? "text-gray-400" : "text-white"
-                  }`}
-                >
-                  {message.message}
-                </p>
-              </div>
-            );
-          })}
+                  <p
+                    className={`text-sm ${
+                      isUser ? "text-gray-500" : "text-gray-200"
+                    }`}
+                  >
+                    {isUser ? "You" : message.name}
+                  </p>
+                  <p
+                    className={`text-lg ${
+                      isUser ? "text-gray-400" : "text-white"
+                    }`}
+                  >
+                    {message.message}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className="w-full flex-none flex flex-row items-center justify-end pb-5 md:pb-8 lg:pb-10">

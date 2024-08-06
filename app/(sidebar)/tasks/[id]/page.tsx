@@ -1,7 +1,7 @@
 "use client";
 
 import useData from "@/hooks/useData";
-import useAuth from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 
 import {
   deleteTask,
@@ -10,8 +10,8 @@ import {
   markTaskAsCompleted,
 } from "@/utils/tasks";
 import { kanit } from "@/utils/fonts";
+import { formatDate } from "@/lib/utils";
 import { navigate } from "@/actions/navigate";
-import { nameFromId } from "@/utils/users";
 
 import Loading from "@/components/Loading";
 
@@ -21,20 +21,15 @@ import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 import toast from "react-hot-toast";
 
 const TaskViewPage = ({ params }: { params: { id: string } }) => {
   const { projectId } = useData();
-
-  const { user } = useAuth();
+  const { user } = useUser();
 
   const [loading, setLoading] = useRecoilState(loadingAtom);
   const [taskData, setTaskData] = useState<TaskData | null>(null);
-
-  const [assignedBy, setAssignedBy] = useState<string | null>(null);
-  const [assignedTo, setAssignedTo] = useState<string[] | null>(null);
 
   const [isAssignedToUser, setIsAssignedToUser] = useState<boolean>(false);
   const [isAssignedByUser, setIsAssignedByUser] = useState<boolean>(false);
@@ -73,19 +68,11 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
 
         setTaskData(fetchedTaskData);
 
-        if (fetchedTaskData.assignedBy === "AI") setAssignedBy("AI");
-        else setAssignedBy(await nameFromId(fetchedTaskData.assignedBy));
-
-        fetchedTaskData.assignedTo.forEach(async (id) => {
-          const name = await nameFromId(id);
-          setAssignedTo((prev) => [...(prev || []), name]);
-        });
-
-        if (fetchedTaskData.assignedTo.includes(user.uid)) {
+        if (fetchedTaskData.assignedTo.includes(user.username!)) {
           setIsAssignedToUser(true);
         }
 
-        if (fetchedTaskData.assignedBy === user.uid) {
+        if (fetchedTaskData.assignedBy === user.username!) {
           setIsAssignedByUser(true);
         }
       } catch (error) {
@@ -161,18 +148,14 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
                 <p className="md:text-lg">
                   Completed on:{" "}
                   <span className="capitalize text-green-500 font-semibold">
-                    {new Date(taskData?.completedAt!).toDateString()}{" "}
-                    {new Date(taskData?.completedAt!).toLocaleTimeString() ||
-                      "No data"}
+                    {formatDate(taskData?.completedAt)}
                   </span>
                 </p>
               ) : (
                 <p className="md:text-lg">
                   Due by:{" "}
                   <span className="capitalize text-red-500 font-semibold">
-                    {new Date(taskData?.dueDate!).toDateString()}{" "}
-                    {new Date(taskData?.dueDate!).toLocaleTimeString() ||
-                      "No due date"}
+                    {formatDate(taskData?.dueDate!)}
                   </span>
                 </p>
               )}
@@ -180,23 +163,17 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
               <p className="md:text-lg">
                 Created on:{" "}
                 <span className="capitalize text-blue-500 font-semibold">
-                  {new Date(taskData?.createdAt!).toDateString()}{" "}
-                  {new Date(taskData?.createdAt!).toLocaleTimeString() ||
-                    "No data"}
+                  {formatDate(taskData?.createdAt!)}
                 </span>
               </p>
 
               {taskData?.assignedTo.length! > 0 && (
                 <p className="md:text-lg">
                   Assigned to:{" "}
-                  {taskData?.assignedTo.map((id, index) => (
-                    <Link
-                      key={index}
-                      href={`/users/${id}`}
-                      className="font-semibold"
-                    >
-                      {assignedTo?.[index]}
-                    </Link>
+                  {taskData?.assignedTo.map((username, index) => (
+                    <span key={index} className="font-semibold">
+                      {username}
+                    </span>
                   ))}
                 </p>
               )}
@@ -204,12 +181,10 @@ const TaskViewPage = ({ params }: { params: { id: string } }) => {
               {taskData?.assignedBy && (
                 <p className="md:text-lg">
                   Assigned by:{" "}
-                  {assignedBy === "AI" ? (
+                  {taskData.assignedBy === "AI" ? (
                     <span className="font-semibold">AI</span>
                   ) : (
-                    <Link href={`/users/${taskData?.assignedBy}`}>
-                      <span className="font-semibold">{assignedBy}</span>
-                    </Link>
+                    <span className="font-semibold">{taskData.assignedBy}</span>
                   )}
                 </p>
               )}

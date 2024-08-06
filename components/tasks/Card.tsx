@@ -27,7 +27,11 @@ const TaskCard = ({ task }: TaskProps) => {
         </span>
 
         <span className="text-[gray] text-sm md:text-base">
-          Due: {new Date(task.dueDate).toLocaleDateString("en-UK")}
+          Due:{" "}
+          <span>
+            {new Date(task.dueDate).toDateString()}{" "}
+            {new Date(task.dueDate).toLocaleTimeString() || "No due date"}
+          </span>
         </span>
       </div>
     </Link>

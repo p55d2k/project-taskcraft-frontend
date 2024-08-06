@@ -15,8 +15,8 @@ import {
 import { navigate } from "@/actions/navigate";
 import { kanit } from "@/utils/fonts";
 
-import useAuth from "@/hooks/useAuth";
 import useData from "@/hooks/useData";
+import { useUser } from "@clerk/nextjs";
 
 import { IoMdClose } from "react-icons/io";
 
@@ -26,7 +26,7 @@ import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";
 
 const NewProject = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
   const { setProjectData, setProjectId } = useData();
 
   const [id, setID] = useState<string>("");
@@ -66,8 +66,8 @@ const NewProject = () => {
       }
 
       try {
-        if (role === "member") await addMemberToProject(id, user?.uid);
-        else await addMentorToProject(id, user?.uid);
+        if (role === "member") await addMemberToProject(id, user?.username!);
+        else await addMentorToProject(id, user?.username!);
 
         setProjectId(id);
         setProjectData(await getProject(id));

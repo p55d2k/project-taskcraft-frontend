@@ -10,12 +10,7 @@ interface NewTaskPage1Props {
   setNext: () => void;
 }
 
-const NewTaskPage1 = ({
-  name,
-  error,
-  setName,
-  setNext,
-}: NewTaskPage1Props) => {
+const NewTaskPage1 = ({ name, error, setName, setNext }: NewTaskPage1Props) => {
   return (
     <div className="w-full h-screen flex flex-col lg:flex-row space-y-44 lg:space-y-0 py-12 lg:py-0 justify-between">
       <div className="w-full flex flex-col items-center lg:items-start justify-center px-16 lg:px-28 pb-24 lg:pb-0">
@@ -27,15 +22,27 @@ const NewTaskPage1 = ({
         >
           Let&apos;s start by giving your project a name
         </p>
+
         <input
           type="text"
           className="!h-auto input-field text-lg"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value.length <= 100) setName(e.target.value);
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter") setNext();
           }}
         />
+        <p
+          className={`text-sm text-right pt-1 ${
+            name.length > 100 ? "text-red-500" : "text-gray-400"
+          }
+          `}
+        >
+          {name.length}/100
+        </p>
+
         <p className="text-red-500 text-sm mt-2">{error}</p>
         <div className="flex flex-col w-full space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 pt-3">
           <Link className="button-danger creation-buttons" href="/projects">

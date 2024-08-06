@@ -3,11 +3,7 @@
 "use client";
 
 import { useGetCalls } from "@/hooks/useGetCalls";
-import {
-  Call,
-  CallRecording,
-  useCallStateHooks,
-} from "@stream-io/video-react-sdk";
+import { CallRecording } from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";

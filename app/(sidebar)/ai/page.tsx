@@ -5,7 +5,7 @@ import {
   getGPTResponseWithHistory,
 } from "@/utils/ai";
 import useData from "@/hooks/useData";
-import useAuth from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 
 import DashboardWrapper from "@/components/DashboardWrapper";
 
@@ -32,7 +32,7 @@ const AskAI = () => {
   const [conversation, setConversation] = useState<(string | TaskData)[]>([]);
 
   const { projectData, projectId } = useData();
-  const { user } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     if (!sendPrompt || !projectData || !user) return;
@@ -44,7 +44,7 @@ const AskAI = () => {
           conversation,
           prompt,
           projectData,
-          user.uid
+          user.username!
         );
 
         if (!response) {
@@ -89,53 +89,55 @@ const AskAI = () => {
             </div>
           )}
 
-          {conversation.toReversed().map((message, index) => {
-            if (typeof message === "string") {
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col space-y-1 ${
-                    index % 2 === 1
-                      ? "items-end text-right"
-                      : "items-start text-left lg:max-w-[50vw]"
-                  }`}
-                >
-                  <p
-                    className={`text-sm ${
-                      index % 2 === 1 ? "text-gray-500" : "text-gray-200"
+          <div className="space-y-2">
+            {conversation.map((message, index) => {
+              if (typeof message === "string") {
+                return (
+                  <div
+                    key={index}
+                    className={`flex flex-col space-y-1 ${
+                      index % 2 === 0
+                        ? "items-end text-right"
+                        : "items-start text-left lg:max-w-[50vw]"
                     }`}
                   >
-                    {index % 2 === 1 ? "You" : "TaskCraft AI"}
-                  </p>
-                  <p
-                    className={`text-lg ${
-                      index % 2 === 1 ? "text-gray-400" : "text-white"
-                    }`}
+                    <p
+                      className={`text-sm ${
+                        index % 2 === 0 ? "text-gray-500" : "text-gray-200"
+                      }`}
+                    >
+                      {index % 2 === 0 ? "You" : "TaskCraft AI"}
+                    </p>
+                    <p
+                      className={`text-lg ${
+                        index % 2 === 0 ? "text-gray-400" : "text-white"
+                      }`}
+                    >
+                      {message.split("\n").map((line, i) => (
+                        <span key={i}>
+                          {line}
+                          <br />
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                );
+              } else {
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col space-y-1 items-start text-left"
                   >
-                    {message.split("\n").map((line, i) => (
-                      <span key={i}>
-                        {line}
-                        <br />
-                      </span>
-                    ))}
-                  </p>
-                </div>
-              );
-            } else {
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col space-y-1 items-start text-left"
-                >
-                  <p className="text-sm text-gray-200">
-                    {index % 2 === 1 ? "You" : "TaskCraft AI"}
-                  </p>
+                    <p className="text-sm text-gray-200">
+                      {index % 2 === 0 ? "You" : "TaskCraft AI"}
+                    </p>
 
-                  <AITaskDataCard taskData={message as TaskData} />
-                </div>
-              );
-            }
-          })}
+                    <AITaskDataCard taskData={message as TaskData} />
+                  </div>
+                );
+              }
+            })}
+          </div>
         </div>
 
         <div className="w-full flex-none flex flex-row items-center justify-end pb-5 md:pb-8 lg:pb-10">

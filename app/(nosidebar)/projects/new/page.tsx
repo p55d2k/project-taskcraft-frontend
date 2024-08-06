@@ -11,16 +11,17 @@ import { createProject } from "@/utils/projects";
 import { generateUniqueId } from "@/utils/unique";
 import { navigate } from "@/actions/navigate";
 
-import useAuth from "@/hooks/useAuth";
-import { ProjectData } from "@/types";
 import useData from "@/hooks/useData";
+import { useUser } from "@clerk/nextjs";
+
+import { ProjectData } from "@/types";
 
 import { useRecoilState } from "recoil";
 import { loadingAtom } from "@/atoms/loadingAtom";
 import Loading from "@/components/Loading";
 
 const NewProject = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
   const { setProjectData, setProjectId } = useData();
 
   const [name, setName] = useState<string>("");
@@ -48,9 +49,9 @@ const NewProject = () => {
 
         createdAt: Date.now(),
 
-        owner: user.uid,
-        members: members,
-        mentors: mentors,
+        owner: user.username!,
+        members: members.map((member) => member.toLowerCase()),
+        mentors: mentors.map((mentor) => mentor.toLowerCase()),
 
         tasks_progress: [],
         tasks_completed: [],

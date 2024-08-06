@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 06-08-2024
+
+I take my words back - this isn't the full release. But it's close!
+
+It's got a new major version number, as we've made incompatible changes to the project. We've also added a lot of new features and fixed a lot of bugs.
+
+### Added
+
+- Paraphrase Tool
+
+### Changed
+
+- Now we're using Clerk for authentication instead of Firebase!
+- With unique usernames, the main way of identifying users is now through their username
+- The AI has been improved to be more accurate and helpful with prompt engineering
+
+### Fixed
+
+- There is now a limit to the project title to 100 characters
+
+### Removed
+
+- The home page
+- The account page as you can now edit your profile by clicking on your user button in the sidebar
+
 ## [0.7.0] - 03-08-2024
 
 Maybe just one last pre-release...?
@@ -13,7 +38,6 @@ Maybe just one last pre-release...?
 
 - Custom 404 page
 - Citation Generator
-<!-- - You can copy a user's user ID by clicking on their profile from the project settings page, and go to their profile page -->
 - Members and mentors can now be added from the project settings page by the project owner
 
 ### Changed
