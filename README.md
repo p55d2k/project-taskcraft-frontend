@@ -226,23 +226,3 @@ You are allowed to distribute, modify the codes, or use this project for persona
 <p align="center">
   <a href="#top">Back to top</a>
 </p>
-
-## Contributions 🤝
-
-Contributions, issues and feature requests are welcome!
-
-It would be great to have some help to improve this project. Feel free to fork this project and work on it. You can also open **an issue** or **pull request** for any feature requests or bug reports related to this project.
-
-## License 📝
-
-### Copyright
-
-Copyright © 2024 by [p55d2k](https://github.com/p55d2k)
-
-**TaskCraft Frontend** is available and distributed under the [MIT License](https://github.com/p55d2k/project-taskcraft-frontend/LICENSE).
-
-### Code of Conduct
-
-You are allowed to distribute, modify the codes, or use this project for personal or commerical use. However, please do credit me as the author of the project or website.
-
-Template taken from [Frans Jesky's](https://github.com/fransjesky) [Project Sinclair](https://github.com/fransjesky/sinclair) README.
